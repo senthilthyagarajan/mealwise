@@ -1,0 +1,119 @@
+[
+  {
+    "date": "Wednesday, 18 February 2026",
+    "generatedAt": "2026-02-18T07:00:00.000Z",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "title": "Poha (Flattened Rice Upma)",
+        "ingredients": ["Poha (flattened rice)", "Onions", "Green Chillies", "Mustard Seeds", "Curry Leaves", "Turmeric Powder", "Coriander Leaves", "Peanuts", "Oil", "Salt", "Lemon juice"],
+        "instructions": "Rinse poha in water, drain and keep aside for 5 minutes to soften. Heat oil in a kadai, splutter mustard seeds, add curry leaves, peanuts and fry till peanuts are golden. Add finely chopped onions and green chillies, sauté till translucent. Add turmeric, salt, and the soaked poha, mix gently and cook on low flame for 3 minutes. Finish with fresh coriander and a squeeze of lemon.",
+        "prepTime": "15 mins",
+        "serves": 4,
+        "usesUrgent": false,
+        "cuisine": "Maharashtra",
+        "category": "Breakfast"
+      },
+      {
+        "type": "Lunch",
+        "title": "Dal Tadka with Jeera Rice",
+        "ingredients": ["Toor Dal", "Onions", "Tomatoes", "Garlic", "Ginger", "Cumin Seeds", "Turmeric Powder", "Red Chilli Powder", "Coriander Powder", "Ghee", "Basmati Rice", "Coriander Leaves", "Salt"],
+        "instructions": "Pressure cook toor dal with turmeric and salt for 4 whistles until soft. For tadka, heat ghee in a pan, add cumin seeds, garlic, onions and fry till golden. Add tomatoes, red chilli and coriander powder, cook till oil separates. Mash the dal and pour tadka over it, simmer for 5 minutes. For jeera rice, heat ghee, splutter cumin seeds, add soaked basmati rice and cook with 1.5x water until fluffy.",
+        "prepTime": "40 mins",
+        "serves": 4,
+        "usesUrgent": false,
+        "cuisine": "North Indian",
+        "category": "Lunch"
+      },
+      {
+        "type": "Dinner",
+        "title": "Palak Paneer",
+        "ingredients": ["Spinach (Palak)", "Paneer", "Onions", "Tomatoes", "Garlic", "Ginger", "Green Chillies", "Cream (Malai)", "Garam Masala", "Turmeric Powder", "Oil", "Ghee", "Salt"],
+        "instructions": "Blanch spinach in boiling water for 2 minutes, then blend to a smooth purée. Fry paneer cubes in ghee till golden and set aside. In the same pan, cook onion-tomato-ginger-garlic masala till oil separates. Add the palak purée, garam masala, turmeric, salt and simmer for 5 minutes. Add paneer and cream, cook for 2 more minutes and serve hot with roti.",
+        "prepTime": "30 mins",
+        "serves": 4,
+        "usesUrgent": true,
+        "cuisine": "North Indian",
+        "category": "Dinner"
+      }
+    ]
+  },
+  {
+    "date": "Tuesday, 17 February 2026",
+    "generatedAt": "2026-02-17T07:00:00.000Z",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "title": "Rava Upma",
+        "ingredients": ["Rava / Sooji", "Onions", "Green Chillies", "Mustard Seeds", "Curry Leaves", "Ginger", "Cashews", "Oil", "Ghee", "Salt", "Coriander Leaves"],
+        "instructions": "Dry roast rava in a kadai till aromatic and light golden, set aside. Heat oil, splutter mustard seeds, add cashews and fry till golden. Add curry leaves, onions, green chillies, ginger and sauté till translucent. Add 2.5 cups boiling water and salt, mix well. Gradually add roasted rava while stirring continuously to prevent lumps. Cook on low flame covered for 3 minutes, finish with ghee and fresh coriander.",
+        "prepTime": "20 mins",
+        "serves": 4,
+        "usesUrgent": false,
+        "cuisine": "South Indian",
+        "category": "Breakfast"
+      },
+      {
+        "type": "Lunch",
+        "title": "Aloo Gobi Sabzi with Phulka",
+        "ingredients": ["Potatoes", "Cauliflower (Gobi)", "Onions", "Tomatoes", "Ginger", "Garlic", "Turmeric Powder", "Red Chilli Powder", "Coriander Powder", "Cumin Seeds", "Coriander Leaves", "Wheat Flour (Atta)", "Oil", "Salt"],
+        "instructions": "Heat oil, splutter cumin seeds, add ginger-garlic paste and cook till raw smell leaves. Add onions till golden, then tomatoes with all dry spice powders, cook till oil separates. Add chopped potatoes first, cook covered for 10 minutes, then add cauliflower florets and cook for another 10 minutes till both are tender. Serve with soft phulka rotis made from whole wheat atta.",
+        "prepTime": "35 mins",
+        "serves": 4,
+        "usesUrgent": false,
+        "cuisine": "North Indian",
+        "category": "Lunch"
+      },
+      {
+        "type": "Dinner",
+        "title": "Tomato Rasam with Steamed Rice",
+        "ingredients": ["Tomatoes", "Toor Dal", "Tamarind (Imli)", "Dry Red Chillies", "Mustard Seeds", "Cumin Seeds", "Curry Leaves", "Turmeric Powder", "Hing (Asafoetida)", "Ghee", "Coriander Leaves", "Basmati Rice", "Salt"],
+        "instructions": "Cook toor dal until soft. Soak tamarind in warm water and extract juice. In a pot, combine tamarind water, chopped tomatoes, turmeric and salt, boil till tomatoes are mushy. Add cooked dal, thin with water to rasam consistency and simmer for 5 minutes. Prepare tempering with ghee, mustard seeds, cumin, dry chillies, curry leaves and hing, pour over rasam. Serve piping hot with steamed rice.",
+        "prepTime": "30 mins",
+        "serves": 4,
+        "usesUrgent": true,
+        "cuisine": "South Indian",
+        "category": "Dinner"
+      }
+    ]
+  },
+  {
+    "date": "Monday, 16 February 2026",
+    "generatedAt": "2026-02-16T07:00:00.000Z",
+    "meals": [
+      {
+        "type": "Breakfast",
+        "title": "Methi Thepla",
+        "ingredients": ["Methi (Fenugreek Leaves)", "Wheat Flour (Atta)", "Besan (Chickpea Flour)", "Curd (Dahi)", "Turmeric Powder", "Red Chilli Powder", "Cumin Seeds", "Hing (Asafoetida)", "Oil", "Salt"],
+        "instructions": "Finely chop fresh methi leaves and mix with atta, besan, all spice powders, cumin, salt and hing. Add curd and knead into a soft dough using minimal water. Divide into balls, roll into thin theplas. Cook on a hot tawa with oil on both sides till golden brown spots appear. Theplas stay soft and are perfect with curd or pickle.",
+        "prepTime": "25 mins",
+        "serves": 4,
+        "usesUrgent": true,
+        "cuisine": "Gujarati",
+        "category": "Breakfast"
+      },
+      {
+        "type": "Lunch",
+        "title": "Rajma Chawal",
+        "ingredients": ["Rajma (Kidney Beans)", "Onions", "Tomatoes", "Ginger", "Garlic", "Red Chilli Powder", "Coriander Powder", "Garam Masala", "Cumin Seeds", "Ghee", "Basmati Rice", "Coriander Leaves", "Salt"],
+        "instructions": "Soak rajma overnight and pressure cook for 6-7 whistles till soft. In a kadai, heat ghee and fry cumin seeds, then onions till deep golden. Add ginger-garlic paste, tomatoes and all spice powders, cook till masala is thick and oil separates. Add cooked rajma with its water, simmer for 15 minutes till gravy thickens. Serve over fluffy steamed basmati rice with sliced onions on the side.",
+        "prepTime": "50 mins",
+        "serves": 4,
+        "usesUrgent": false,
+        "cuisine": "Punjabi",
+        "category": "Lunch"
+      },
+      {
+        "type": "Dinner",
+        "title": "Mixed Vegetable Kurma",
+        "ingredients": ["Potatoes", "Cauliflower (Gobi)", "Green Peas (Fresh)", "Capsicum", "Onions", "Tomatoes", "Coconut (Fresh)", "Cashews", "Ginger", "Garlic", "Garam Masala", "Coriander Powder", "Cream (Malai)", "Oil", "Salt"],
+        "instructions": "Grind coconut and cashews with water into a smooth paste. Cook onion-tomato masala with all spice powders till thick. Add parboiled vegetables and toss in the masala. Pour in the coconut-cashew paste with 1 cup water, simmer on low heat for 10 minutes till vegetables are cooked through and gravy coats them nicely. Finish with cream and serve with appam, dosa or roti.",
+        "prepTime": "40 mins",
+        "serves": 4,
+        "usesUrgent": true,
+        "cuisine": "South Indian",
+        "category": "Dinner"
+      }
+    ]
+  }
+]
