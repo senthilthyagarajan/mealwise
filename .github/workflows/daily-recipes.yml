@@ -2,9 +2,8 @@ name: Daily Recipe WhatsApp
 
 on:
   schedule:
-    # Runs at 7:00 AM AEST (21:00 UTC) every day
     - cron: "0 21 * * *"
-  workflow_dispatch: # allows manual trigger from GitHub UI
+  workflow_dispatch:
 
 jobs:
   send-recipes:
@@ -19,152 +18,107 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Generate recipes and send to WhatsApp
+      - name: Generate and send recipes
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
           CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
-          FAMILY_SIZE: "4"
         run: |
-          node - << 'EOF'
+          cat << 'SCRIPT' > run.js
           const fs = require("fs");
           const https = require("https");
 
-          // ── Load pantry ──────────────────────────────────────────────────────
           let pantry = [];
           try {
             pantry = JSON.parse(fs.readFileSync("pantry.json", "utf8"));
           } catch (e) {
-            console.log("No pantry.json found, using empty pantry");
-          }
-
-          if (pantry.length === 0) {
-            console.log("Pantry is empty, skipping recipe generation");
+            console.log("No pantry.json found");
             process.exit(0);
           }
 
-          // ── Shelf life database ──────────────────────────────────────────────
-          const SHELF_LIFE = {
-            potatoes: 21, onions: 30, garlic: 30, carrots: 14,
-            tomatoes: 7, spinach: 4, lettuce: 3, broccoli: 4,
-            chicken: 2, beef: 3, fish: 2, eggs: 21, milk: 7,
-            rice: 365, pasta: 365
-          };
+          if (pantry.length === 0) {
+            console.log("Pantry is empty, skipping");
+            process.exit(0);
+          }
 
           function getDaysLeft(item) {
-            const shelfLife = item.shelfLife || SHELF_LIFE[item.name.toLowerCase()] || 7;
-            const exp = new Date(item.boughtDate);
+            var shelfLife = item.shelfLife || 7;
+            var exp = new Date(item.boughtDate);
             exp.setDate(exp.getDate() + shelfLife);
             return Math.ceil((exp - new Date()) / 86400000);
           }
 
-          const sorted = [...pantry].sort((a, b) => getDaysLeft(a) - getDaysLeft(b));
-          const urgent = sorted.slice(0, 10).map(i => `${i.name} (${getDaysLeft(i)}d left)`);
-          const all = pantry.map(i => i.name);
+          var sorted = pantry.slice().sort(function(a, b) { return getDaysLeft(a) - getDaysLeft(b); });
+          var urgent = sorted.slice(0, 10).map(function(i) { return i.name + " (" + getDaysLeft(i) + "d left)"; });
+          var all = pantry.map(function(i) { return i.name; }).join(", ");
 
-          // ── Call Claude API ──────────────────────────────────────────────────
-          const prompt = `Generate 3 meals (Breakfast, Lunch, Dinner) for a family of ${process.env.FAMILY_SIZE}.
-          
-Prioritise expiring items: ${urgent.join(", ")}
-All pantry items: ${all.join(", ")}
+          var prompt = "Generate 3 vegetarian meals (Breakfast, Lunch, Dinner) for a family of 4.\n\nPrioritise expiring items: " + urgent.join(", ") + "\nAll pantry items: " + all + "\n\nFormat EXACTLY like this:\n\nBREAKFAST: [Meal Name]\nIngredients: item1, item2\nHow to make: Brief instructions.\n\nLUNCH: [Meal Name]\nIngredients: item1, item2\nHow to make: Brief instructions.\n\nDINNER: [Meal Name]\nIngredients: item1, item2\nHow to make: Brief instructions.";
 
-Format your response EXACTLY like this (no extra text):
-
-🍳 BREAKFAST: [Meal Name]
-Ingredients: item1, item2, item3
-How to make: Brief 2-sentence instructions.
-
-🥗 LUNCH: [Meal Name]  
-Ingredients: item1, item2, item3
-How to make: Brief 2-sentence instructions.
-
-🍲 DINNER: [Meal Name]
-Ingredients: item1, item2, item3
-How to make: Brief 2-sentence instructions.`;
-
-          async function callClaude() {
-            return new Promise((resolve, reject) => {
-              const body = JSON.stringify({
-                model: "claude-sonnet-4-20250514",
-                max_tokens: 600,
-                messages: [{ role: "user", content: prompt }]
-              });
-              const req = https.request({
-                hostname: "api.anthropic.com",
-                path: "/v1/messages",
-                method: "POST",
-                headers: {
-                  "Content-Type": "application/json",
-                  "x-api-key": process.env.ANTHROPIC_API_KEY,
-                  "anthropic-version": "2023-06-01"
-                }
-              }, res => {
-                let data = "";
-                res.on("data", d => data += d);
-                res.on("end", () => {
-                  const parsed = JSON.parse(data);
-                  resolve(parsed.content?.[0]?.text || "Could not generate recipes");
-                });
-              });
-              req.on("error", reject);
-              req.write(body);
-              req.end();
+          function callClaude(cb) {
+            var body = JSON.stringify({
+              model: "claude-sonnet-4-20250514",
+              max_tokens: 600,
+              messages: [{ role: "user", content: prompt }]
             });
+            var req = https.request({
+              hostname: "api.anthropic.com",
+              path: "/v1/messages",
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "x-api-key": process.env.ANTHROPIC_API_KEY,
+                "anthropic-version": "2023-06-01",
+                "Content-Length": Buffer.byteLength(body)
+              }
+            }, function(res) {
+              var data = "";
+              res.on("data", function(d) { data += d; });
+              res.on("end", function() {
+                var parsed = JSON.parse(data);
+                cb(null, parsed.content[0].text);
+              });
+            });
+            req.on("error", function(e) { cb(e); });
+            req.write(body);
+            req.end();
           }
 
-          // ── Send WhatsApp via CallMeBot ──────────────────────────────────────
-          async function sendWhatsApp(message) {
-            const encoded = encodeURIComponent(message);
-            const url = `https://api.callmebot.com/whatsapp.php?phone=${process.env.CALLMEBOT_PHONE}&text=${encoded}&apikey=${process.env.CALLMEBOT_APIKEY}`;
-            return new Promise((resolve, reject) => {
-              https.get(url, res => {
-                let data = "";
-                res.on("data", d => data += d);
-                res.on("end", () => { console.log("WhatsApp response:", data); resolve(data); });
-              }).on("error", reject);
-            });
+          function sendWhatsApp(message, cb) {
+            var encoded = encodeURIComponent(message);
+            var url = "https://api.callmebot.com/whatsapp.php?phone=" + process.env.CALLMEBOT_PHONE + "&text=" + encoded + "&apikey=" + process.env.CALLMEBOT_APIKEY;
+            https.get(url, function(res) {
+              var data = "";
+              res.on("data", function(d) { data += d; });
+              res.on("end", function() { console.log("WhatsApp:", data); cb(null); });
+            }).on("error", function(e) { cb(e); });
           }
 
-          // ── Save to recipes.json ─────────────────────────────────────────────
-          function saveRecipe(mealsText) {
-            let history = [];
-            try { history = JSON.parse(fs.readFileSync("recipes.json", "utf8")); } catch {}
-            const today = new Date().toLocaleDateString("en-AU", {
-              weekday: "long", year: "numeric", month: "long", day: "numeric"
-            });
-            history.unshift({ date: today, raw: mealsText, generatedAt: new Date().toISOString() });
-            // Keep last 90 days
+          function saveRecipe(text) {
+            var history = [];
+            try { history = JSON.parse(fs.readFileSync("recipes.json", "utf8")); } catch(e) {}
+            var today = new Date().toLocaleDateString("en-AU", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+            history.unshift({ date: today, raw: text, generatedAt: new Date().toISOString() });
             if (history.length > 90) history = history.slice(0, 90);
             fs.writeFileSync("recipes.json", JSON.stringify(history, null, 2));
             console.log("Saved to recipes.json");
           }
 
-          // ── Main ─────────────────────────────────────────────────────────────
-          (async () => {
-            try {
-              console.log("Generating recipes...");
-              const meals = await callClaude();
-              
-              const today = new Date().toLocaleDateString("en-AU", {
-                weekday: "long", month: "long", day: "numeric"
-              });
-              const message = `🏠 Family Meals for ${today}\n\n${meals}\n\n⚡ Generated from your pantry`;
-              
-              console.log("Sending to WhatsApp...");
-              await sendWhatsApp(message);
-              
+          callClaude(function(err, meals) {
+            if (err) { console.error("Claude error:", err); process.exit(1); }
+            var today = new Date().toLocaleDateString("en-AU", { weekday: "long", month: "long", day: "numeric" });
+            var message = "Mealwise - Family Meals for " + today + "\n\n" + meals + "\n\nGenerated from your pantry";
+            sendWhatsApp(message, function(err) {
+              if (err) { console.error("WhatsApp error:", err); process.exit(1); }
               saveRecipe(meals);
               console.log("Done!");
-            } catch (err) {
-              console.error("Error:", err);
-              process.exit(1);
-            }
-          })();
-          EOF
+            });
+          });
+          SCRIPT
+          node run.js
 
       - name: Commit updated recipes.json
         run: |
-          git config user.name "Recipe Bot"
+          git config user.name "Mealwise Bot"
           git config user.email "bot@github.com"
           git add recipes.json
           git diff --staged --quiet || git commit -m "Daily recipes $(date +'%Y-%m-%d')"
