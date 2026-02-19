@@ -20,10 +20,6 @@ input:focus,select:focus,textarea:focus { border-color: #d97706 !important; box-
 </head>
 <body>
 <div id="root"></div>
-<script>
-// Injected at deploy time from GitHub Secrets — never stored in source code
-window.__ANTHROPIC_KEY__ = "__ANTHROPIC_API_KEY__";
-</script>
 <script type="text/babel">
 const { useState, useEffect, useCallback, useMemo } = React;
 
@@ -70,11 +66,7 @@ const CATEGORIES = {
 
 const UNITS = ["units","kg","g","lb","oz","L","ml","bunch","can","cans","packet","box","bag","tbsp","tsp","dozen","slice","bulbs"];
 const CUISINES = ["Any (surprise me)","Indian — North","Indian — South","Indian — Gujarati / Maharashtrian","Italian","Mexican","Asian — Chinese","Asian — Japanese","Asian — Thai","Mediterranean","Lebanese / Middle Eastern","Continental"];
-const MEAL_COLORS = [
-  {bg:"#fffbf0",border:"#f59e0b",accent:"#b45309"},
-  {bg:"#f0fdf4",border:"#22c55e",accent:"#15803d"},
-  {bg:"#fdf4ff",border:"#c084fc",accent:"#7e22ce"},
-];
+const MEAL_COLORS = [{bg:"#fffbf0",border:"#f59e0b",accent:"#b45309"},{bg:"#f0fdf4",border:"#22c55e",accent:"#15803d"},{bg:"#fdf4ff",border:"#c084fc",accent:"#7e22ce"}];
 const MEAL_ICONS = {Breakfast:"🍳",Lunch:"🥘",Dinner:"🍲"};
 
 function getShelfLife(n) {
@@ -100,8 +92,7 @@ function downloadFile(content, filename, type) {
   URL.revokeObjectURL(url);
 }
 
-async function callClaude(pantry, familySize, prefs, cuisine) {
-  const apiKey = window.__ANTHROPIC_KEY__;
+async function callClaude(pantry, familySize, prefs, cuisine, apiKey) {
   const urgent = [...pantry].sort((a,b)=>getDays(a)-getDays(b)).slice(0,12).map(i=>`${i.name} (${getDays(i)}d left)`);
   const all = pantry.map(i=>i.name).join(", ");
   const cuisineNote = cuisine==="Any (surprise me)"
@@ -117,12 +108,12 @@ Respond ONLY with a JSON array, no markdown:
 [{"type":"Breakfast","title":"...","cuisine":"...","ingredients":["..."],"instructions":"...","prepTime":"..."},{"type":"Lunch",...},{"type":"Dinner",...}]`;
 
   const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
       "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true",
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true",
     },
     body: JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1000,messages:[{role:"user",content:prompt}]})
   });
@@ -236,6 +227,7 @@ function App() {
   const [familyName,setFamilyName]=useState(()=>localStorage.getItem("mw_name")||"Our Family");
   const [prefs,setPrefs]=useState(()=>localStorage.getItem("mw_prefs")||"");
   const [cuisine,setCuisine]=useState(()=>localStorage.getItem("mw_cuisine")||"Any (surprise me)");
+  const [apiKey,setApiKey]=useState(()=>localStorage.getItem("mw_apikey")||"");
   const [filterCat,setFilterCat]=useState("All");
   const [sortBy,setSortBy]=useState("expiry");
   const [search,setSearch]=useState("");
@@ -248,22 +240,24 @@ function App() {
   useEffect(()=>{localStorage.setItem("mw_name",familyName);},[familyName]);
   useEffect(()=>{localStorage.setItem("mw_prefs",prefs);},[prefs]);
   useEffect(()=>{localStorage.setItem("mw_cuisine",cuisine);},[cuisine]);
+  useEffect(()=>{localStorage.setItem("mw_apikey",apiKey);},[apiKey]);
 
   const addItem=useCallback(item=>setPantry(p=>[item,...p]),[]);
   const removeItem=useCallback(id=>setPantry(p=>p.filter(i=>i.id!==id)),[]);
-  const expiring = useMemo(()=>pantry.filter(i=>getDays(i)<=3),[pantry]);
-  const cats = ["All",...Object.keys(CATEGORIES)];
-  const filtered = useMemo(()=>pantry
+  const expiring=useMemo(()=>pantry.filter(i=>getDays(i)<=3),[pantry]);
+  const cats=["All",...Object.keys(CATEGORIES)];
+  const filtered=useMemo(()=>pantry
     .filter(i=>filterCat==="All"||i.category===filterCat)
     .filter(i=>!search||i.name.toLowerCase().includes(search.toLowerCase()))
     .sort((a,b)=>sortBy==="expiry"?getDays(a)-getDays(b):a.name.localeCompare(b.name))
   ,[pantry,filterCat,search,sortBy]);
 
   const handleGenerate = async () => {
-    if (pantry.length===0) { setGenError("Add some items to your pantry first!"); return; }
+    if (!apiKey) { setGenError("Add your API key in ⚙ Setup first!"); setTab("setup"); return; }
+    if (pantry.length===0) { setGenError("Add some pantry items first!"); return; }
     setGenerating(true); setGenError("");
     try {
-      const meals = await callClaude(pantry, familySize, prefs, cuisine);
+      const meals = await callClaude(pantry, familySize, prefs, cuisine, apiKey);
       const entry = {
         date: new Date().toLocaleDateString("en-AU",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),
         generatedAt: new Date().toISOString(),
@@ -273,7 +267,7 @@ function App() {
       setRecipes(r=>[entry,...r]);
       setTab("recipes");
     } catch(e) {
-      setGenError("Error: " + e.message);
+      setGenError("Error: "+e.message);
     }
     setGenerating(false);
   };
@@ -281,12 +275,11 @@ function App() {
   const tabs=[
     {id:"pantry",label:"🧺 Pantry",count:pantry.length},
     {id:"recipes",label:"🍽 Recipes",count:recipes.length||undefined},
-    {id:"setup",label:"⚙ Setup"},
+    {id:"setup",label:`⚙ Setup${!apiKey?" 🔑":""}`},
   ];
 
   return (
     <div style={{minHeight:"100vh",background:"#fdf8f0"}}>
-      {/* Header */}
       <div style={{background:"linear-gradient(135deg,#1a0800 0%,#7c2d12 50%,#d97706 100%)",padding:"20px 16px 0",color:"white"}}>
         <div style={{maxWidth:720,margin:"0 auto"}}>
           <div style={{marginBottom:14}}>
@@ -294,7 +287,6 @@ function App() {
             <h1 style={{margin:"0 0 2px",fontFamily:"'Noto Serif',serif",fontSize:24,fontWeight:700}}>{familyName} 🏠</h1>
             <div style={{opacity:0.75,fontSize:12}}>Family of {familySize} · {pantry.length} pantry items{expiring.length>0?` · ⚠️ ${expiring.length} expiring`:""}</div>
           </div>
-          {/* Generate bar */}
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:14,flexWrap:"wrap"}}>
             <select value={cuisine} onChange={e=>setCuisine(e.target.value)}
               style={{flex:1,minWidth:180,padding:"9px 14px",borderRadius:50,border:"1.5px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.12)",color:"white",fontSize:13,fontFamily:"'Noto Sans',sans-serif",cursor:"pointer"}}>
@@ -317,7 +309,6 @@ function App() {
 
       <div style={{maxWidth:720,margin:"0 auto",padding:"20px 14px"}} className="fade-up" key={tab}>
 
-        {/* ── PANTRY ── */}
         {tab==="pantry"&&<>
           <AddItemForm onAdd={addItem}/>
           {expiring.length>0&&(
@@ -353,13 +344,12 @@ function App() {
             ?<div style={{textAlign:"center",padding:48,color:"#c0a080"}}>
               <div style={{fontSize:52}}>🧺</div>
               <div style={{fontFamily:"'Noto Serif',serif",fontSize:18,color:"#7c4a1e",marginTop:12}}>Pantry is empty</div>
-              <div style={{fontSize:13,marginTop:4}}>Add your groceries above or import in Setup</div>
+              <div style={{fontSize:13,marginTop:4}}>Add groceries above or import in Setup</div>
             </div>
             :filtered.map(item=><PantryItem key={item.id} item={item} onRemove={removeItem}/>)
           }
         </>}
 
-        {/* ── RECIPES ── */}
         {tab==="recipes"&&<>
           {recipes.length===0
             ?<div style={{textAlign:"center",padding:56,color:"#c0a080"}}>
@@ -369,7 +359,7 @@ function App() {
             </div>
             :<>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:8}}>
-                <div style={{fontFamily:"'Noto Serif',serif",fontSize:14,color:"#9a7050"}}>{recipes.length} day{recipes.length!==1?"s":""} of recipes saved</div>
+                <div style={{fontFamily:"'Noto Serif',serif",fontSize:14,color:"#9a7050"}}>{recipes.length} day{recipes.length!==1?"s":""} of recipes</div>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>downloadFile(JSON.stringify(recipes,null,2),"recipes.json","application/json")} style={SB}>⬇ Export</button>
                   <button onClick={()=>{if(window.confirm("Clear all saved recipes?"))setRecipes([]);}} style={{...SB,borderColor:"#fca5a5",color:"#dc2626"}}>🗑 Clear</button>
@@ -388,8 +378,28 @@ function App() {
           }
         </>}
 
-        {/* ── SETUP ── */}
         {tab==="setup"&&<>
+          {!apiKey&&(
+            <div style={{background:"#fff7ed",border:"1.5px solid #fed7aa",borderRadius:14,padding:"14px 18px",marginBottom:20,display:"flex",gap:12,alignItems:"center"}}>
+              <span style={{fontSize:28}}>🔑</span>
+              <div>
+                <div style={{fontWeight:700,color:"#c2410c",fontSize:14}}>API key needed to generate recipes</div>
+                <div style={{fontSize:12,color:"#9a3412",marginTop:3}}>Enter your Anthropic key below — saved permanently in your browser, never sent anywhere else.</div>
+              </div>
+            </div>
+          )}
+          <div style={CARD}>
+            <p style={CT}>🔑 Anthropic API Key</p>
+            <label style={LS}>Paste your key (sk-ant-...)</label>
+            <input style={{...IS,fontFamily:"monospace",letterSpacing:1}} type="password"
+              value={apiKey} onChange={e=>setApiKey(e.target.value)}
+              placeholder="sk-ant-api03-..."/>
+            {apiKey
+              ?<div style={{marginTop:8,fontSize:12,color:"#15803d",fontWeight:600}}>✅ Key saved — you won't need to enter this again</div>
+              :<div style={{marginTop:8,fontSize:12,color:"#9a7050"}}>Get your free key at <a href="https://console.anthropic.com" target="_blank" style={{color:"#c2773b"}}>console.anthropic.com</a></div>
+            }
+          </div>
+
           <div style={CARD}>
             <p style={CT}>👨‍👩‍👧‍👦 Family settings</p>
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
@@ -399,9 +409,10 @@ function App() {
             <div>
               <label style={LS}>Dietary preferences</label>
               <textarea style={{...IS,height:90,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)}
-                placeholder="e.g. No onion garlic Tuesdays, kids love paneer, Friday pasta nights, wife lactose intolerant..."/>
+                placeholder="e.g. No onion garlic Tuesdays, kids love paneer, Friday pasta nights..."/>
             </div>
           </div>
+
           <div style={CARD}>
             <p style={CT}>💾 Pantry data</p>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
