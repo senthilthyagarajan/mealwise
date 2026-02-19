@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Deploy Mealwise
 
 on:
   push:
@@ -6,11 +6,10 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Inject API key into HTML
         env:
@@ -23,4 +22,4 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: .
-          exclude_assets: '.github,src,public,node_modules,package.json,.gitignore,.eslintrc.json,README.md'
+          exclude_assets: '.github,src,node_modules,package.json,.gitignore,README.md'
