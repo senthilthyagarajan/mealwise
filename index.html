@@ -24,25 +24,41 @@ input:focus,select:focus,textarea:focus { border-color: #d97706 !important; box-
 const { useState, useEffect, useCallback } = React;
 
 const SHELF_LIFE = {
-  onions:30,potatoes:21,sweet_potato:14,beetroot:14,tomatoes:6,capsicum:7,brinjal:5,baingan:5,
-  cauliflower:5,gobi:5,bottle_gourd:7,lauki:7,ridge_gourd:5,bitter_gourd:5,karela:5,raw_banana:5,
-  radish:7,mooli:7,drumstick:5,okra:4,bhindi:4,corn:3,green_peas:4,
+  // Vegetables
+  onions:30,potatoes:21,sweet_potato:14,beetroot:14,tomatoes:6,capsicum:7,brinjal:5,
+  cauliflower:5,bottle_gourd:7,bitter_gourd:5,karela:5,raw_banana:5,radish:7,drumstick:5,
+  okra:4,bhindi:4,corn:3,green_peas:4,zucchini:5,broccoli:4,mushrooms:4,cucumber:6,
+  lettuce:4,celery:7,asparagus:3,avocado:4,bell_pepper:7,leek:7,shallots:21,
+  // Leafy
   spinach:4,palak:4,methi:4,kale:5,coriander_leaves:5,curry_leaves:7,mint:5,basil:3,
-  garlic:30,ginger:14,green_chillies:7,shallots:21,leek:7,celery:7,asparagus:3,zucchini:5,
-  broccoli:4,mushrooms:4,cucumber:6,lettuce:4,avocado:4,bell_pepper:7,
-  paneer:5,curd:7,dahi:7,milk:5,yogurt:7,butter:21,ghee:180,cream:7,malai:7,
+  // Aromatics
+  garlic:30,ginger:14,green_chillies:7,
+  // Dairy
+  paneer:5,curd:7,dahi:7,milk:5,yogurt:7,butter:21,ghee:180,cream:7,
   mozzarella:5,parmesan:30,feta:14,cheddar:21,sour_cream:14,ricotta:7,
-  tofu:4,tempeh:7,eggs:21,lemon:14,lime:14,banana:5,mango:5,apple:21,berries:4,grapes:7,orange:14,coconut:7,
-  toor_dal:365,moong_dal:365,masoor_dal:365,chana_dal:365,urad_dal:365,rajma:365,kabuli_chana:365,kala_chana:365,
-  canned_chickpeas:730,canned_beans:730,canned_tomatoes:730,lentils:365,black_beans:365,
+  // Meat & Fish
+  chicken:2,chicken_mince:2,lamb:3,beef:3,pork:3,fish:2,prawns:2,shrimp:2,
+  salmon:2,tuna:2,eggs:21,bacon:5,sausages:3,
+  // Fruits
+  lemon:14,lime:14,banana:5,mango:5,apple:21,berries:4,grapes:7,orange:14,coconut:7,
+  // Plant proteins
+  tofu:4,tempeh:7,
+  // Dals
+  toor_dal:365,moong_dal:365,masoor_dal:365,chana_dal:365,urad_dal:365,
+  rajma:365,kabuli_chana:365,kala_chana:365,lentils:365,black_beans:365,
+  canned_chickpeas:730,canned_beans:730,canned_tomatoes:730,
+  // Grains
   basmati_rice:365,rice:365,idli_rice:365,poha:180,rava:180,sooji:180,oats:180,
   wheat_flour:180,atta:180,maida:180,besan:180,rice_flour:180,ragi_flour:90,
   pasta:365,spaghetti:365,penne:365,noodles:365,quinoa:365,couscous:365,bread:4,tortilla:5,
-  mustard_seeds:365,cumin_seeds:365,coriander_powder:365,turmeric_powder:365,garam_masala:365,
-  red_chilli_powder:365,chaat_masala:365,kasuri_methi:365,hing:365,amchur:365,
-  oregano:365,thyme:365,rosemary:365,paprika:365,cumin:365,cayenne:365,bay_leaves:365,
-  soy_sauce:365,miso_paste:180,tahini:180,harissa:180,olive_oil:365,oil:180,sesame_oil:365,
-  vinegar:365,tamarind:180,jaggery:365,sugar:999,salt:999,
+  // Spices
+  mustard_seeds:365,cumin_seeds:365,coriander_powder:365,turmeric_powder:365,
+  garam_masala:365,red_chilli_powder:365,chaat_masala:365,kasuri_methi:365,
+  hing:365,amchur:365,oregano:365,thyme:365,paprika:365,cumin:365,bay_leaves:365,
+  // Condiments
+  soy_sauce:365,miso_paste:180,tahini:180,harissa:180,olive_oil:365,oil:180,
+  sesame_oil:365,vinegar:365,tamarind:180,jaggery:365,sugar:999,salt:999,
+  // Nuts
   cashews:180,peanuts:180,almonds:180,pine_nuts:180,sesame_seeds:365,walnuts:180,desiccated_coconut:180,
 };
 
@@ -50,6 +66,8 @@ const CATEGORIES = {
   "🥦 Vegetables":["Onions","Tomatoes","Potatoes","Sweet Potato","Cauliflower (Gobi)","Brinjal (Baingan)","Bottle Gourd (Lauki)","Bitter Gourd (Karela)","Capsicum","Okra (Bhindi)","Radish (Mooli)","Drumstick","Corn","Green Peas","Beetroot","Zucchini","Broccoli","Mushrooms","Cucumber","Lettuce","Celery","Asparagus","Avocado"],
   "🌿 Leafy & Herbs":["Spinach (Palak)","Methi (Fenugreek Leaves)","Coriander Leaves","Curry Leaves","Mint (Pudina)","Kale","Basil","Rosemary","Thyme"],
   "🌶 Aromatics":["Garlic","Ginger","Green Chillies","Dry Red Chillies","Lemongrass"],
+  "🥩 Meat":["Chicken","Chicken Mince","Lamb","Beef","Pork","Bacon","Sausages"],
+  "🐟 Fish & Seafood":["Fish","Salmon","Tuna","Prawns","Shrimp"],
   "🧀 Dairy & Eggs":["Paneer","Curd (Dahi)","Yogurt","Milk","Butter","Ghee","Cream","Mozzarella","Parmesan","Feta","Cheddar","Eggs"],
   "🌱 Plant Proteins":["Tofu","Tempeh","Canned Chickpeas","Canned Black Beans","Canned Kidney Beans"],
   "🫘 Indian Dals":["Toor Dal","Moong Dal (Yellow)","Masoor Dal (Red)","Chana Dal","Urad Dal (Black)","Urad Dal (White)","Rajma","Kabuli Chana","Kala Chana"],
@@ -76,10 +94,12 @@ const CUISINES = [
   "Continental (Soups, Gratins, Stir-fries)",
 ];
 
+const UNITS = ["units","kg","g","lb","oz","L","ml","bunch","can","packet","tbsp","tsp","dozen","slice"];
+
 const CUISINE_ICON = {
-  "South Indian":"🌴","North Indian":"🏔","Punjabi":"🌾","Gujarati":"🎨","Maharashtrian":"🌊",
-  "Indian":"🪔","Italian":"🍝","Mexican":"🌮","Thai":"🍜","Japanese":"🍱","Chinese":"🥢",
-  "Mediterranean":"🫒","Lebanese":"🧆","Middle Eastern":"🥙","Continental":"🍲",
+  "South Indian":"🌴","North Indian":"🏔","Punjabi":"🌾","Gujarati":"🎨",
+  "Indian":"🪔","Italian":"🍝","Mexican":"🌮","Thai":"🍜","Japanese":"🍱",
+  "Chinese":"🥢","Mediterranean":"🫒","Lebanese":"🧆","Middle Eastern":"🥙","Continental":"🍲",
 };
 
 function getShelfLife(n) {
@@ -105,31 +125,32 @@ function getCuisineIcon(c="") {
 function downloadFile(content, filename, type) {
   const blob = new Blob([content], {type});
   const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url);
+  const a = document.createElement("a"); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
 }
 
-async function generateRecipes(pantry, familySize, preferences, cuisinePref) {
+async function generateRecipes(pantry, familySize, prefs, cuisine, apiKey) {
   const urgent = [...pantry].sort((a,b)=>getDays(a)-getDays(b)).slice(0,12).map(i=>`${i.name} (${getDays(i)}d left)`);
   const all = pantry.map(i=>i.name).join(", ");
-  const cuisineInstruction = cuisinePref === "Any (surprise me)"
-    ? "Mix cuisines — e.g. Indian breakfast, Italian or Asian lunch, Mexican or Mediterranean dinner."
-    : `All 3 meals should be in this style: ${cuisinePref}`;
-  const prompt = `You are a vegetarian home chef. Generate 3 vegetarian meals (Breakfast, Lunch, Dinner) for a family of ${familySize}.
+  const cuisineInstruction = cuisine === "Any (surprise me)"
+    ? "Mix cuisines across the 3 meals — e.g. Indian breakfast, Italian lunch, Mexican dinner."
+    : `All 3 meals should be in this style: ${cuisine}`;
+  const prompt = `You are a family chef. Generate 3 meals (Breakfast, Lunch, Dinner) for a family of ${familySize}.
 PANTRY — prioritise expiring: ${urgent.join(", ")}
 All available: ${all}
 Cuisine: ${cuisineInstruction}
-Preferences: ${preferences || "family-friendly, balanced, practical home cooking"}
-Rules: 100% vegetarian, only use pantry ingredients listed, name the specific cuisine for each meal, practical 4-5 sentence instructions.
+Preferences: ${prefs || "family-friendly, balanced, practical home cooking"}
+Rules: Only use pantry ingredients listed. Name the specific cuisine for each meal. Practical 4-5 sentence instructions.
 Respond ONLY with valid JSON array (no markdown):
 [{"type":"Breakfast","title":"Name","cuisine":"South Indian","ingredients":["item1","item2"],"instructions":"Steps here.","prepTime":"20 mins","serves":${familySize},"usesUrgent":false},{"type":"Lunch",...},{"type":"Dinner",...}]`;
 
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method:"POST",
-    headers:{"Content-Type":"application/json"},
+    headers:{"Content-Type":"application/json","x-api-key":apiKey,"anthropic-version":"2023-06-01"},
     body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1400,messages:[{role:"user",content:prompt}]})
   });
   const data = await response.json();
+  if (data.error) throw new Error(data.error.message);
   const text = data.content?.map(c=>c.text||"").join("") || "";
   return JSON.parse(text.replace(/```json|```/g,"").trim());
 }
@@ -143,9 +164,10 @@ const CT = {margin:"0 0 14px",fontFamily:"'Noto Serif',Georgia,serif",fontSize:1
 
 function AddItemForm({onAdd}) {
   const today = new Date().toISOString().slice(0,10);
-  const [name,setName]=useState(""); const [qty,setQty]=useState("1"); const [unit,setUnit]=useState("units");
-  const [cat,setCat]=useState("🥦 Vegetables"); const [date,setDate]=useState(today);
-  const [shelf,setShelf]=useState(""); const [showSug,setShowSug]=useState(false);
+  const [name,setName]=useState(""); const [qty,setQty]=useState("1");
+  const [unit,setUnit]=useState("units"); const [cat,setCat]=useState("🥦 Vegetables");
+  const [date,setDate]=useState(today); const [shelf,setShelf]=useState("");
+  const [showSug,setShowSug]=useState(false);
   const catItems = CATEGORIES[cat]||[];
   const sugs = name.length>1 ? catItems.filter(i=>i.toLowerCase().includes(name.toLowerCase())).slice(0,5) : [];
   const computed = shelf||(name?getShelfLife(name):7);
@@ -160,7 +182,10 @@ function AddItemForm({onAdd}) {
       <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:10}}>
         <div style={{position:"relative"}}>
           <label style={LS}>Item name</label>
-          <input style={IS} value={name} onChange={e=>{setName(e.target.value);setShowSug(true);}} onBlur={()=>setTimeout(()=>setShowSug(false),150)} placeholder="e.g. Spinach, Pasta, Paneer" onKeyDown={e=>e.key==="Enter"&&handle()} />
+          <input style={IS} value={name} onChange={e=>{setName(e.target.value);setShowSug(true);}}
+            onBlur={()=>setTimeout(()=>setShowSug(false),150)}
+            placeholder="e.g. Chicken, Spinach, Pasta"
+            onKeyDown={e=>e.key==="Enter"&&handle()} />
           {showSug&&sugs.length>0&&<div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #e8c97a",borderRadius:10,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.1)"}}>
             {sugs.map(s=><div key={s} onMouseDown={()=>{setName(s);setShelf("");setShowSug(false);}} style={{padding:"8px 12px",cursor:"pointer",fontSize:13,color:"#3d1f0a",borderBottom:"1px solid #f0e0c0"}}>{s}</div>)}
           </div>}
@@ -168,7 +193,7 @@ function AddItemForm({onAdd}) {
         <div><label style={LS}>Qty</label><input style={IS} type="number" value={qty} onChange={e=>setQty(e.target.value)} min="0.1" step="0.5"/></div>
         <div><label style={LS}>Unit</label>
           <select style={IS} value={unit} onChange={e=>setUnit(e.target.value)}>
-            {["units","kg","g","L","ml","bunch","can","packet","tbsp","tsp"].map(u=><option key={u}>{u}</option>)}
+            {UNITS.map(u=><option key={u}>{u}</option>)}
           </select>
         </div>
       </div>
@@ -214,7 +239,7 @@ function MealCard({meal,index}) {
           <div style={{fontFamily:"'Noto Serif',Georgia,serif",fontSize:19,fontWeight:700,color:"#1a0800",lineHeight:1.2}}>{meal.title}</div>
           <div style={{marginTop:4,fontSize:12,color:"#9a7050"}}>{getCuisineIcon(meal.cuisine)} {meal.cuisine} · {meal.serves} serves · {meal.prepTime}</div>
         </div>
-        {meal.usesUrgent&&<span style={{background:"#fef3c7",color:"#b45309",fontSize:11,fontWeight:700,padding:"3px 9px",borderRadius:20,border:`1px solid ${col.border}`,whiteSpace:"nowrap"}}>⚡ Uses expiring</span>}
+        {meal.usesUrgent&&<span style={{background:"#fef3c7",color:"#b45309",fontSize:11,fontWeight:700,padding:"3px 9px",borderRadius:20,border:`1px solid ${col.border}`,whiteSpace:"nowrap"}}>⚡ Expiring</span>}
       </div>
       <div style={{marginBottom:10}}>
         <div style={{fontSize:11,fontWeight:700,color:col.accent,marginBottom:6,textTransform:"uppercase",letterSpacing:0.8}}>Ingredients</div>
@@ -238,6 +263,7 @@ function App() {
   const [familyName,setFamilyName]=useState(()=>localStorage.getItem("mw_name")||"Our Family");
   const [prefs,setPrefs]=useState(()=>localStorage.getItem("mw_prefs")||"");
   const [cuisine,setCuisine]=useState(()=>localStorage.getItem("mw_cuisine")||"Any (surprise me)");
+  const [apiKey,setApiKey]=useState(()=>localStorage.getItem("mw_apikey")||"");
   const [filterCat,setFilterCat]=useState("All");
   const [sortBy,setSortBy]=useState("expiry");
   const [search,setSearch]=useState("");
@@ -248,6 +274,7 @@ function App() {
   useEffect(()=>{localStorage.setItem("mw_name",familyName);},[familyName]);
   useEffect(()=>{localStorage.setItem("mw_prefs",prefs);},[prefs]);
   useEffect(()=>{localStorage.setItem("mw_cuisine",cuisine);},[cuisine]);
+  useEffect(()=>{localStorage.setItem("mw_apikey",apiKey);},[apiKey]);
 
   const addItem=useCallback(item=>setPantry(p=>[item,...p]),[]);
   const removeItem=useCallback(id=>setPantry(p=>p.filter(i=>i.id!==id)),[]);
@@ -259,38 +286,48 @@ function App() {
     .sort((a,b)=>sortBy==="expiry"?getDays(a)-getDays(b):a.name.localeCompare(b.name));
 
   const handleGenerate=async()=>{
+    if(!apiKey){setError("Add your API key in the ⚙ Setup tab first!");setTab("setup");return;}
     if(pantry.length===0){setError("Add some items to your pantry first!");return;}
     setGenerating(true);setError("");
     try {
-      const meals=await generateRecipes(pantry,familySize,prefs,cuisine);
+      const meals=await generateRecipes(pantry,familySize,prefs,cuisine,apiKey);
       const entry={date:new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),generatedAt:new Date().toISOString(),cuisinePreference:cuisine,meals};
       setTodayMeals(entry); setHistory(h=>[entry,...h]); setTab("recipes");
-    } catch(e){setError("Could not generate recipes — check your API key in Setup tab.");console.error(e);}
+    } catch(e){setError("Could not generate recipes — check your API key in Setup.");console.error(e);}
     setGenerating(false);
   };
 
-  const tabs=[{id:"pantry",label:"🧺 Pantry",count:pantry.length},{id:"recipes",label:"🍽 Today's Meals"},{id:"history",label:"📚 Archive",count:history.length},{id:"setup",label:"⚙ Setup"}];
+  const exportPantryForGithub = () => {
+    downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json");
+    alert("✅ pantry.json downloaded!\n\nNow upload this file to your mealwise GitHub repo to update what the WhatsApp bot reads each morning.");
+  };
+
+  const tabs=[
+    {id:"pantry",label:"🧺 Pantry",count:pantry.length},
+    {id:"recipes",label:"🍽 Today"},
+    {id:"history",label:"📚 Archive",count:history.length},
+    {id:"setup",label:"⚙ Setup"},
+  ];
 
   return (
     <div style={{minHeight:"100vh",background:"#fdf8f0",fontFamily:"'Noto Sans',sans-serif"}}>
-      {/* Header */}
       <div style={{background:"linear-gradient(135deg,#1a0800 0%,#7c2d12 45%,#d97706 100%)",padding:"24px 20px 0",color:"white",position:"relative",overflow:"hidden"}}>
         <div style={{maxWidth:760,margin:"0 auto",position:"relative"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14}}>
             <div>
               <div style={{fontSize:11,opacity:0.65,letterSpacing:2.5,textTransform:"uppercase",marginBottom:4}}>Mealwise · Family Kitchen</div>
               <h1 style={{margin:0,fontFamily:"'Noto Serif',serif",fontSize:26,fontWeight:700}}>{familyName} 🏠</h1>
-              <div style={{marginTop:3,opacity:0.8,fontSize:13}}>Family of {familySize} · {pantry.length} pantry items · Vegetarian</div>
+              <div style={{marginTop:3,opacity:0.8,fontSize:13}}>Family of {familySize} · {pantry.length} items · {history.length} recipes saved</div>
             </div>
             <div style={{display:"flex",gap:8}}>
-              {expiring.length>0&&<div style={{background:"rgba(255,255,255,0.12)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,255,255,0.2)"}}>
+              {expiring.length>0&&<div style={{background:"rgba(255,50,50,0.25)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,100,100,0.4)"}}>
                 <div style={{fontSize:18,fontWeight:800}}>{expiring.length}</div>
-                <div style={{fontSize:10,opacity:0.85}}>expiring</div>
+                <div style={{fontSize:10,opacity:0.9}}>expiring!</div>
               </div>}
-              <div style={{background:"rgba(255,255,255,0.12)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,255,255,0.2)"}}>
-                <div style={{fontSize:18,fontWeight:800}}>{history.length}</div>
-                <div style={{fontSize:10,opacity:0.85}}>recipes</div>
-              </div>
+              {!apiKey&&<div style={{background:"rgba(255,200,0,0.2)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,200,0,0.4)",cursor:"pointer"}} onClick={()=>setTab("setup")}>
+                <div style={{fontSize:18}}>🔑</div>
+                <div style={{fontSize:10,opacity:0.9}}>add key</div>
+              </div>}
             </div>
           </div>
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:16,flexWrap:"wrap"}}>
@@ -301,14 +338,13 @@ function App() {
               {generating?<><span style={{display:"inline-block",width:14,height:14,border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>Generating…</>:"✨ Generate 3 Meals"}
             </button>
           </div>
-          {error&&<div style={{marginBottom:10,fontSize:13,color:"#fde68a"}}>{error}</div>}
+          {error&&<div style={{marginBottom:10,fontSize:13,color:"#fde68a",background:"rgba(0,0,0,0.2)",padding:"6px 12px",borderRadius:8,display:"inline-block"}}>{error}</div>}
         </div>
         <div style={{maxWidth:760,margin:"0 auto",display:"flex",borderTop:"1px solid rgba(255,255,255,0.12)"}}>
           {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:tab===t.id?"3px solid white":"3px solid transparent",padding:"11px 4px",cursor:"pointer",fontSize:12,fontWeight:600,color:tab===t.id?"white":"rgba(255,255,255,0.5)",fontFamily:"'Noto Sans',sans-serif",transition:"all 0.2s"}}>{t.label}{t.count!==undefined?` (${t.count})`:""}</button>)}
         </div>
       </div>
 
-      {/* Content */}
       <div style={{maxWidth:760,margin:"0 auto",padding:"22px 14px"}} className="fade-up" key={tab}>
 
         {tab==="pantry"&&<>
@@ -318,6 +354,16 @@ function App() {
             <div><div style={{fontWeight:700,color:"#c2410c",fontSize:14}}>Use these soon!</div>
             <div style={{fontSize:13,color:"#9a3412"}}>{expiring.map(i=>i.name).join(" · ")}</div></div>
           </div>}
+
+          {/* WhatsApp sync banner */}
+          <div style={{background:"#f0fdf4",border:"1.5px solid #86efac",borderRadius:14,padding:"12px 16px",marginBottom:18,display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
+            <div>
+              <div style={{fontWeight:700,color:"#166534",fontSize:13}}>📱 Sync with WhatsApp bot</div>
+              <div style={{fontSize:12,color:"#15803d",marginTop:2}}>After adding groceries, export pantry.json and upload to your GitHub repo so the morning bot uses your latest items.</div>
+            </div>
+            <button onClick={exportPantryForGithub} style={{...PB,background:"linear-gradient(135deg,#15803d,#16a34a)",whiteSpace:"nowrap",fontSize:12}}>⬇ Export for GitHub</button>
+          </div>
+
           <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",alignItems:"flex-end"}}>
             <div style={{flex:1,minWidth:140}}><label style={LS}>Search</label><input style={IS} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..."/></div>
             <div style={{flex:1,minWidth:160}}><label style={LS}>Category</label>
@@ -328,15 +374,10 @@ function App() {
                 <option value="expiry">Expiry first</option><option value="name">A–Z</option>
               </select>
             </div>
-            <div style={{alignSelf:"flex-end",display:"flex",gap:6}}>
-              <button onClick={()=>downloadFile(pantry.map(i=>`"${i.name}","${i.category}","${i.quantity}","${i.unit}","${i.boughtDate}","${i.shelfLife}"`).join("\n"),"pantry.csv","text/csv")} style={SB}>⬇ CSV</button>
-              <button onClick={()=>downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json")} style={SB}>⬇ JSON</button>
-            </div>
           </div>
           {filtered.length===0?<div style={{textAlign:"center",padding:48,color:"#c0a080"}}>
             <div style={{fontSize:52}}>🧺</div>
-            <div style={{fontFamily:"'Noto Serif',serif",fontSize:18,color:"#7c4a1e",marginTop:12}}>Your pantry is empty</div>
-            <div style={{fontSize:13,marginTop:4}}>Add your dal, pasta, veggies, spices above</div>
+            <div style={{fontFamily:"'Noto Serif',serif",fontSize:18,color:"#7c4a1e",marginTop:12}}>Pantry is empty — add your groceries above</div>
           </div>:filtered.map(item=><PantryItem key={item.id} item={item} onRemove={removeItem}/>)}
         </>}
 
@@ -364,13 +405,13 @@ function App() {
             <div style={{fontFamily:"'Noto Serif',serif",fontSize:18}}>No recipes yet — generate some meals!</div>
           </div>:<>
             <div style={{marginBottom:20}}>
-              <div style={{fontSize:12,fontWeight:700,color:"#9a7050",textTransform:"uppercase",letterSpacing:0.8,marginBottom:8}}>Cuisines in your archive</div>
+              <div style={{fontSize:12,fontWeight:700,color:"#9a7050",textTransform:"uppercase",letterSpacing:0.8,marginBottom:8}}>Cuisines cooked</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                 {[...new Set(history.flatMap(r=>r.meals.map(m=>m.cuisine)).filter(Boolean))].map(c=><span key={c} style={{fontSize:12,background:"#fff7ed",border:"1px solid #fed7aa",padding:"3px 10px",borderRadius:20,color:"#c2410c"}}>{getCuisineIcon(c)} {c}</span>)}
               </div>
             </div>
             <div style={{display:"flex",justifyContent:"flex-end",gap:8,marginBottom:16}}>
-              <button onClick={()=>downloadFile(JSON.stringify(history,null,2),"recipes.json","application/json")} style={SB}>⬇ JSON</button>
+              <button onClick={()=>downloadFile(JSON.stringify(history,null,2),"recipes.json","application/json")} style={SB}>⬇ recipes.json</button>
             </div>
             {history.map((entry,ei)=><div key={ei} style={{marginBottom:30}}>
               <div style={{fontFamily:"'Noto Serif',serif",fontSize:15,fontWeight:700,color:"#7c2d12",marginBottom:10,paddingBottom:6,borderBottom:"1.5px solid #e8c97a",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -384,6 +425,14 @@ function App() {
 
         {tab==="setup"&&<div>
           <div style={CARD}>
+            <p style={CT}>🔑 Anthropic API Key</p>
+            <p style={{margin:"0 0 12px",fontSize:13,color:"#9a7050"}}>Enter once — saved permanently in your browser. Get yours free at <a href="https://console.anthropic.com" target="_blank" style={{color:"#c2773b"}}>console.anthropic.com</a></p>
+            <label style={LS}>API Key</label>
+            <input style={IS} type="password" placeholder="sk-ant-..." value={apiKey} onChange={e=>setApiKey(e.target.value)}/>
+            {apiKey&&<div style={{marginTop:8,fontSize:12,color:"#15803d",fontWeight:600}}>✅ Key saved — you won't need to enter this again</div>}
+          </div>
+
+          <div style={CARD}>
             <p style={CT}>👨‍👩‍👧‍👦 Family settings</p>
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:14}}>
               <div><label style={LS}>Family name</label><input style={IS} value={familyName} onChange={e=>setFamilyName(e.target.value)}/></div>
@@ -395,23 +444,26 @@ function App() {
             </div>
             <div>
               <label style={LS}>Dietary preferences</label>
-              <textarea style={{...IS,height:80,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="e.g. No onion no garlic on Tuesdays, kids love paneer, Friday pasta nights..."/>
+              <textarea style={{...IS,height:80,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="e.g. No onion no garlic on Tuesdays, kids love paneer, Friday pasta nights, wife is lactose intolerant..."/>
             </div>
           </div>
 
           <div style={CARD}>
-            <p style={CT}>🔑 API Key</p>
-            <p style={{margin:"0 0 12px",fontSize:13,color:"#9a7050"}}>Required to generate recipes. Get yours free at console.anthropic.com</p>
-            <label style={LS}>Anthropic API Key</label>
-            <input style={IS} type="password" placeholder="sk-ant-..." onChange={e=>{window._apiKey=e.target.value;}} defaultValue={window._apiKey||""}/>
-            <p style={{margin:"8px 0 0",fontSize:12,color:"#c0a080"}}>Stored only in your browser memory, never sent anywhere except Anthropic.</p>
+            <p style={CT}>📱 How WhatsApp works</p>
+            <div style={{fontSize:13,color:"#7c4a1e",lineHeight:2}}>
+              <div>1️⃣ You add groceries in this app</div>
+              <div>2️⃣ Click <strong>"Export for GitHub"</strong> in the Pantry tab</div>
+              <div>3️⃣ Upload the downloaded <code>pantry.json</code> to your GitHub repo (replace the old one)</div>
+              <div>4️⃣ Every morning at 7am GitHub reads your pantry, generates 3 meals and sends to your WhatsApp automatically</div>
+              <div>5️⃣ New recipes are saved to <code>recipes.json</code> in your repo</div>
+            </div>
           </div>
 
           <div style={CARD}>
             <p style={CT}>💾 Data</p>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
-              <button onClick={()=>downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json")} style={PB}>⬇ pantry.json</button>
-              <button onClick={()=>downloadFile(JSON.stringify(history,null,2),"recipes.json","application/json")} style={SB}>⬇ recipes.json</button>
+              <button onClick={exportPantryForGithub} style={PB}>⬇ Export pantry.json</button>
+              <button onClick={()=>downloadFile(JSON.stringify(history,null,2),"recipes.json","application/json")} style={SB}>⬇ Export recipes.json</button>
               <button onClick={()=>{if(window.confirm("Clear all pantry?"))setPantry([]);}} style={{...SB,borderColor:"#fca5a5",color:"#dc2626"}}>🗑 Clear Pantry</button>
             </div>
             <label style={LS}>Import pantry.json</label>
@@ -427,25 +479,6 @@ function App() {
     </div>
   );
 }
-
-// Patch generateRecipes to use window._apiKey
-const _orig = generateRecipes;
-window.generateRecipesWithKey = async function(pantry, familySize, prefs, cuisine) {
-  const urgent = [...pantry].sort((a,b)=>getDays(a)-getDays(b)).slice(0,12).map(i=>`${i.name} (${getDays(i)}d left)`);
-  const all = pantry.map(i=>i.name).join(", ");
-  const cuisineInstruction = cuisine === "Any (surprise me)"
-    ? "Mix cuisines across the 3 meals."
-    : `All 3 meals should be in this style: ${cuisine}`;
-  const prompt = `You are a vegetarian home chef. Generate 3 vegetarian meals (Breakfast, Lunch, Dinner) for a family of ${familySize}.\nPANTRY — prioritise expiring: ${urgent.join(", ")}\nAll available: ${all}\nCuisine: ${cuisineInstruction}\nPreferences: ${prefs || "family-friendly"}\nRules: 100% vegetarian, only use pantry ingredients listed, name specific cuisine for each meal.\nRespond ONLY with valid JSON array:\n[{"type":"Breakfast","title":"Name","cuisine":"South Indian","ingredients":["item1"],"instructions":"Steps.","prepTime":"20 mins","serves":${familySize},"usesUrgent":false},{"type":"Lunch",...},{"type":"Dinner",...}]`;
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method:"POST",
-    headers:{"Content-Type":"application/json","x-api-key":window._apiKey||"","anthropic-version":"2023-06-01"},
-    body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1400,messages:[{role:"user",content:prompt}]})
-  });
-  const data = await response.json();
-  const text = data.content?.map(c=>c.text||"").join("") || "";
-  return JSON.parse(text.replace(/```json|```/g,"").trim());
-};
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
