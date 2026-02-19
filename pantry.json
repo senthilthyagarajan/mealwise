@@ -73,5 +73,60 @@
   { "id": 72, "name": "Raisins (Kishmish)", "quantity": 200, "unit": "g", "category": "Nuts & Dry Fruits", "boughtDate": "2026-02-18", "shelfLife": 180 },
   { "id": 73, "name": "Green Peas (Fresh)", "quantity": 250, "unit": "g", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 4 },
   { "id": 74, "name": "Corn (Bhutta)", "quantity": 2, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 3 },
-  { "id": 75, "name": "Beetroot", "quantity": 2, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 14 }
+  { "id": 75, "name": "Beetroot", "quantity": 2, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 14 },
+
+  { "id": 76, "name": "Olive Oil (Extra Virgin)", "quantity": 1, "unit": "L", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 77, "name": "Apple Cider Vinegar", "quantity": 500, "unit": "ml", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 78, "name": "Red Wine Vinegar", "quantity": 500, "unit": "ml", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 79, "name": "Balsamic Vinegar", "quantity": 250, "unit": "ml", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 730 },
+  { "id": 80, "name": "Soy Sauce", "quantity": 250, "unit": "ml", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+
+  { "id": 81, "name": "Tomato Paste", "quantity": 200, "unit": "g", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 82, "name": "Canned Tomatoes (Whole)", "quantity": 2, "unit": "cans", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 83, "name": "Black Beans (Canned)", "quantity": 2, "unit": "cans", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 84, "name": "Kidney Beans (Canned)", "quantity": 2, "unit": "cans", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 85, "name": "Chickpeas (Canned)", "quantity": 2, "unit": "cans", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 86, "name": "Coconut Milk (Canned)", "quantity": 2, "unit": "cans", "category": "Canned Goods", "boughtDate": "2026-02-18", "shelfLife": 365 },
+
+  { "id": 87, "name": "Pasta (Spaghetti)", "quantity": 500, "unit": "g", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 88, "name": "Pasta (Penne)", "quantity": 500, "unit": "g", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 89, "name": "Lasagna Sheets", "quantity": 1, "unit": "box", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 90, "name": "Arborio Rice", "quantity": 500, "unit": "g", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 91, "name": "Tortillas (Flour)", "quantity": 10, "unit": "units", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 92, "name": "Tortillas (Corn)", "quantity": 10, "unit": "units", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 93, "name": "Breadcrumbs", "quantity": 200, "unit": "g", "category": "Grains & Flour", "boughtDate": "2026-02-18", "shelfLife": 180 },
+
+  { "id": 94, "name": "Parmesan Cheese", "quantity": 200, "unit": "g", "category": "Dairy", "boughtDate": "2026-02-18", "shelfLife": 30 },
+  { "id": 95, "name": "Mozzarella Cheese", "quantity": 250, "unit": "g", "category": "Dairy", "boughtDate": "2026-02-18", "shelfLife": 10 },
+  { "id": 96, "name": "Feta Cheese", "quantity": 200, "unit": "g", "category": "Dairy", "boughtDate": "2026-02-18", "shelfLife": 14 },
+  { "id": 97, "name": "Ricotta Cheese", "quantity": 250, "unit": "g", "category": "Dairy", "boughtDate": "2026-02-18", "shelfLife": 10 },
+  { "id": 98, "name": "Eggs", "quantity": 12, "unit": "units", "category": "Dairy", "boughtDate": "2026-02-18", "shelfLife": 21 },
+
+  { "id": 99, "name": "Lemons", "quantity": 6, "unit": "units", "category": "Fruits", "boughtDate": "2026-02-18", "shelfLife": 14 },
+  { "id": 100, "name": "Limes", "quantity": 6, "unit": "units", "category": "Fruits", "boughtDate": "2026-02-18", "shelfLife": 14 },
+  { "id": 101, "name": "Avocados", "quantity": 4, "unit": "units", "category": "Fruits", "boughtDate": "2026-02-18", "shelfLife": 5 },
+
+  { "id": 102, "name": "Jalapenos", "quantity": 4, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 103, "name": "Bell Peppers (Red/Yellow)", "quantity": 4, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 104, "name": "Zucchini", "quantity": 4, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 105, "name": "Mushrooms", "quantity": 250, "unit": "g", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 5 },
+  { "id": 106, "name": "Cucumber", "quantity": 2, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 7 },
+  { "id": 107, "name": "Eggplant (Italian)", "quantity": 2, "unit": "units", "category": "Vegetables", "boughtDate": "2026-02-18", "shelfLife": 5 },
+
+  { "id": 108, "name": "Dried Oregano", "quantity": 50, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 109, "name": "Dried Basil", "quantity": 50, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 110, "name": "Paprika", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 111, "name": "Smoked Paprika", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 112, "name": "Italian Seasoning", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 113, "name": "Taco Seasoning", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 114, "name": "Cajun Seasoning", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 115, "name": "Black Pepper (Ground)", "quantity": 100, "unit": "g", "category": "Ground Spices", "boughtDate": "2026-02-18", "shelfLife": 365 },
+
+  { "id": 116, "name": "Tahini", "quantity": 250, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 180 },
+  { "id": 117, "name": "Olives (Green/Black)", "quantity": 200, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 180 },
+  { "id": 118, "name": "Capers", "quantity": 100, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 180 },
+  { "id": 119, "name": "Honey", "quantity": 500, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 730 },
+  { "id": 120, "name": "Baking Powder", "quantity": 100, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 121, "name": "Baking Soda", "quantity": 100, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 365 },
+  { "id": 122, "name": "Yeast (Active Dry)", "quantity": 50, "unit": "g", "category": "Pantry Staples", "boughtDate": "2026-02-18", "shelfLife": 180 }
 ]
