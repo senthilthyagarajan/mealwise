@@ -20,45 +20,37 @@ input:focus,select:focus,textarea:focus { border-color: #d97706 !important; box-
 </head>
 <body>
 <div id="root"></div>
+<script>
+// API key injected at deploy time from GitHub Secrets — never visible in source repo
+window.__ANTHROPIC_KEY__ = "__ANTHROPIC_API_KEY__";
+</script>
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
 
 const SHELF_LIFE = {
-  // Vegetables
   onions:30,potatoes:21,sweet_potato:14,beetroot:14,tomatoes:6,capsicum:7,brinjal:5,
   cauliflower:5,bottle_gourd:7,bitter_gourd:5,karela:5,raw_banana:5,radish:7,drumstick:5,
   okra:4,bhindi:4,corn:3,green_peas:4,zucchini:5,broccoli:4,mushrooms:4,cucumber:6,
   lettuce:4,celery:7,asparagus:3,avocado:4,bell_pepper:7,leek:7,shallots:21,
-  // Leafy
   spinach:4,palak:4,methi:4,kale:5,coriander_leaves:5,curry_leaves:7,mint:5,basil:3,
-  // Aromatics
   garlic:30,ginger:14,green_chillies:7,
-  // Dairy
   paneer:5,curd:7,dahi:7,milk:5,yogurt:7,butter:21,ghee:180,cream:7,
   mozzarella:5,parmesan:30,feta:14,cheddar:21,sour_cream:14,ricotta:7,
-  // Meat & Fish
   chicken:2,chicken_mince:2,lamb:3,beef:3,pork:3,fish:2,prawns:2,shrimp:2,
   salmon:2,tuna:2,eggs:21,bacon:5,sausages:3,
-  // Fruits
   lemon:14,lime:14,banana:5,mango:5,apple:21,berries:4,grapes:7,orange:14,coconut:7,
-  // Plant proteins
   tofu:4,tempeh:7,
-  // Dals
   toor_dal:365,moong_dal:365,masoor_dal:365,chana_dal:365,urad_dal:365,
   rajma:365,kabuli_chana:365,kala_chana:365,lentils:365,black_beans:365,
   canned_chickpeas:730,canned_beans:730,canned_tomatoes:730,
-  // Grains
   basmati_rice:365,rice:365,idli_rice:365,poha:180,rava:180,sooji:180,oats:180,
   wheat_flour:180,atta:180,maida:180,besan:180,rice_flour:180,ragi_flour:90,
   pasta:365,spaghetti:365,penne:365,noodles:365,quinoa:365,couscous:365,bread:4,tortilla:5,
-  // Spices
   mustard_seeds:365,cumin_seeds:365,coriander_powder:365,turmeric_powder:365,
   garam_masala:365,red_chilli_powder:365,chaat_masala:365,kasuri_methi:365,
   hing:365,amchur:365,oregano:365,thyme:365,paprika:365,cumin:365,bay_leaves:365,
-  // Condiments
   soy_sauce:365,miso_paste:180,tahini:180,harissa:180,olive_oil:365,oil:180,
   sesame_oil:365,vinegar:365,tamarind:180,jaggery:365,sugar:999,salt:999,
-  // Nuts
   cashews:180,peanuts:180,almonds:180,pine_nuts:180,sesame_seeds:365,walnuts:180,desiccated_coconut:180,
 };
 
@@ -129,7 +121,8 @@ function downloadFile(content, filename, type) {
   URL.revokeObjectURL(url);
 }
 
-async function generateRecipes(pantry, familySize, prefs, cuisine, apiKey) {
+async function generateRecipes(pantry, familySize, prefs, cuisine) {
+  const apiKey = window.__ANTHROPIC_KEY__;
   const urgent = [...pantry].sort((a,b)=>getDays(a)-getDays(b)).slice(0,12).map(i=>`${i.name} (${getDays(i)}d left)`);
   const all = pantry.map(i=>i.name).join(", ");
   const cuisineInstruction = cuisine === "Any (surprise me)"
@@ -263,7 +256,6 @@ function App() {
   const [familyName,setFamilyName]=useState(()=>localStorage.getItem("mw_name")||"Our Family");
   const [prefs,setPrefs]=useState(()=>localStorage.getItem("mw_prefs")||"");
   const [cuisine,setCuisine]=useState(()=>localStorage.getItem("mw_cuisine")||"Any (surprise me)");
-  const [apiKey,setApiKey]=useState(()=>localStorage.getItem("mw_apikey")||"");
   const [filterCat,setFilterCat]=useState("All");
   const [sortBy,setSortBy]=useState("expiry");
   const [search,setSearch]=useState("");
@@ -274,7 +266,6 @@ function App() {
   useEffect(()=>{localStorage.setItem("mw_name",familyName);},[familyName]);
   useEffect(()=>{localStorage.setItem("mw_prefs",prefs);},[prefs]);
   useEffect(()=>{localStorage.setItem("mw_cuisine",cuisine);},[cuisine]);
-  useEffect(()=>{localStorage.setItem("mw_apikey",apiKey);},[apiKey]);
 
   const addItem=useCallback(item=>setPantry(p=>[item,...p]),[]);
   const removeItem=useCallback(id=>setPantry(p=>p.filter(i=>i.id!==id)),[]);
@@ -286,20 +277,19 @@ function App() {
     .sort((a,b)=>sortBy==="expiry"?getDays(a)-getDays(b):a.name.localeCompare(b.name));
 
   const handleGenerate=async()=>{
-    if(!apiKey){setError("Add your API key in the ⚙ Setup tab first!");setTab("setup");return;}
     if(pantry.length===0){setError("Add some items to your pantry first!");return;}
     setGenerating(true);setError("");
     try {
-      const meals=await generateRecipes(pantry,familySize,prefs,cuisine,apiKey);
+      const meals=await generateRecipes(pantry,familySize,prefs,cuisine);
       const entry={date:new Date().toLocaleDateString("en-IN",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),generatedAt:new Date().toISOString(),cuisinePreference:cuisine,meals};
       setTodayMeals(entry); setHistory(h=>[entry,...h]); setTab("recipes");
-    } catch(e){setError("Could not generate recipes — check your API key in Setup.");console.error(e);}
+    } catch(e){setError("Recipe generation failed — "+e.message);console.error(e);}
     setGenerating(false);
   };
 
   const exportPantryForGithub = () => {
     downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json");
-    alert("✅ pantry.json downloaded!\n\nNow upload this file to your mealwise GitHub repo to update what the WhatsApp bot reads each morning.");
+    alert("✅ pantry.json downloaded!\n\nNow upload this to your mealwise GitHub repo to update what the WhatsApp bot reads each morning.");
   };
 
   const tabs=[
@@ -319,16 +309,10 @@ function App() {
               <h1 style={{margin:0,fontFamily:"'Noto Serif',serif",fontSize:26,fontWeight:700}}>{familyName} 🏠</h1>
               <div style={{marginTop:3,opacity:0.8,fontSize:13}}>Family of {familySize} · {pantry.length} items · {history.length} recipes saved</div>
             </div>
-            <div style={{display:"flex",gap:8}}>
-              {expiring.length>0&&<div style={{background:"rgba(255,50,50,0.25)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,100,100,0.4)"}}>
-                <div style={{fontSize:18,fontWeight:800}}>{expiring.length}</div>
-                <div style={{fontSize:10,opacity:0.9}}>expiring!</div>
-              </div>}
-              {!apiKey&&<div style={{background:"rgba(255,200,0,0.2)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,200,0,0.4)",cursor:"pointer"}} onClick={()=>setTab("setup")}>
-                <div style={{fontSize:18}}>🔑</div>
-                <div style={{fontSize:10,opacity:0.9}}>add key</div>
-              </div>}
-            </div>
+            {expiring.length>0&&<div style={{background:"rgba(255,50,50,0.25)",borderRadius:12,padding:"8px 12px",textAlign:"center",border:"1px solid rgba(255,100,100,0.4)"}}>
+              <div style={{fontSize:18,fontWeight:800}}>{expiring.length}</div>
+              <div style={{fontSize:10,opacity:0.9}}>expiring!</div>
+            </div>}
           </div>
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:16,flexWrap:"wrap"}}>
             <select value={cuisine} onChange={e=>setCuisine(e.target.value)} style={{padding:"9px 14px",borderRadius:50,border:"1.5px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.12)",color:"white",fontSize:13,fontFamily:"'Noto Sans',sans-serif",cursor:"pointer",flex:1,minWidth:200}}>
@@ -354,16 +338,13 @@ function App() {
             <div><div style={{fontWeight:700,color:"#c2410c",fontSize:14}}>Use these soon!</div>
             <div style={{fontSize:13,color:"#9a3412"}}>{expiring.map(i=>i.name).join(" · ")}</div></div>
           </div>}
-
-          {/* WhatsApp sync banner */}
           <div style={{background:"#f0fdf4",border:"1.5px solid #86efac",borderRadius:14,padding:"12px 16px",marginBottom:18,display:"flex",gap:12,alignItems:"center",justifyContent:"space-between",flexWrap:"wrap"}}>
             <div>
               <div style={{fontWeight:700,color:"#166534",fontSize:13}}>📱 Sync with WhatsApp bot</div>
-              <div style={{fontSize:12,color:"#15803d",marginTop:2}}>After adding groceries, export pantry.json and upload to your GitHub repo so the morning bot uses your latest items.</div>
+              <div style={{fontSize:12,color:"#15803d",marginTop:2}}>After adding groceries, export and upload pantry.json to GitHub so the 7am bot uses your latest items.</div>
             </div>
             <button onClick={exportPantryForGithub} style={{...PB,background:"linear-gradient(135deg,#15803d,#16a34a)",whiteSpace:"nowrap",fontSize:12}}>⬇ Export for GitHub</button>
           </div>
-
           <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap",alignItems:"flex-end"}}>
             <div style={{flex:1,minWidth:140}}><label style={LS}>Search</label><input style={IS} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search..."/></div>
             <div style={{flex:1,minWidth:160}}><label style={LS}>Category</label>
@@ -425,14 +406,6 @@ function App() {
 
         {tab==="setup"&&<div>
           <div style={CARD}>
-            <p style={CT}>🔑 Anthropic API Key</p>
-            <p style={{margin:"0 0 12px",fontSize:13,color:"#9a7050"}}>Enter once — saved permanently in your browser. Get yours free at <a href="https://console.anthropic.com" target="_blank" style={{color:"#c2773b"}}>console.anthropic.com</a></p>
-            <label style={LS}>API Key</label>
-            <input style={IS} type="password" placeholder="sk-ant-..." value={apiKey} onChange={e=>setApiKey(e.target.value)}/>
-            {apiKey&&<div style={{marginTop:8,fontSize:12,color:"#15803d",fontWeight:600}}>✅ Key saved — you won't need to enter this again</div>}
-          </div>
-
-          <div style={CARD}>
             <p style={CT}>👨‍👩‍👧‍👦 Family settings</p>
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:14}}>
               <div><label style={LS}>Family name</label><input style={IS} value={familyName} onChange={e=>setFamilyName(e.target.value)}/></div>
@@ -443,22 +416,20 @@ function App() {
               <select style={IS} value={cuisine} onChange={e=>setCuisine(e.target.value)}>{CUISINES.map(c=><option key={c}>{c}</option>)}</select>
             </div>
             <div>
-              <label style={LS}>Dietary preferences</label>
-              <textarea style={{...IS,height:80,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="e.g. No onion no garlic on Tuesdays, kids love paneer, Friday pasta nights, wife is lactose intolerant..."/>
+              <label style={LS}>Dietary preferences & notes</label>
+              <textarea style={{...IS,height:80,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)} placeholder="e.g. No onion no garlic on Tuesdays, kids love paneer, Friday pasta nights..."/>
             </div>
           </div>
-
           <div style={CARD}>
             <p style={CT}>📱 How WhatsApp works</p>
-            <div style={{fontSize:13,color:"#7c4a1e",lineHeight:2}}>
-              <div>1️⃣ You add groceries in this app</div>
-              <div>2️⃣ Click <strong>"Export for GitHub"</strong> in the Pantry tab</div>
-              <div>3️⃣ Upload the downloaded <code>pantry.json</code> to your GitHub repo (replace the old one)</div>
-              <div>4️⃣ Every morning at 7am GitHub reads your pantry, generates 3 meals and sends to your WhatsApp automatically</div>
-              <div>5️⃣ New recipes are saved to <code>recipes.json</code> in your repo</div>
+            <div style={{fontSize:13,color:"#7c4a1e",lineHeight:2.2}}>
+              <div>1️⃣ Add groceries in the Pantry tab</div>
+              <div>2️⃣ Click <strong>Export for GitHub</strong> → downloads pantry.json</div>
+              <div>3️⃣ Upload pantry.json to your GitHub repo (replace old one)</div>
+              <div>4️⃣ Every morning at 7am → GitHub reads pantry → generates 3 meals → sends to WhatsApp</div>
+              <div>5️⃣ New recipes saved back to recipes.json automatically</div>
             </div>
           </div>
-
           <div style={CARD}>
             <p style={CT}>💾 Data</p>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
