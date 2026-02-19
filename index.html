@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mealwise · Family Kitchen</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=Noto+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; } body { margin: 0; background: #fdf8f0; font-family: 'Noto Sans', sans-serif; }
+input,select,textarea { outline: none; }
+input:focus,select:focus,textarea:focus { border-color: #d97706 !important; box-shadow: 0 0 0 3px rgba(217,119,6,0.15); }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fadeUp 0.25s ease both; }
+::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:#e8c97a; border-radius:3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback, useMemo } = React;
+
+const SHELF_LIFE = {
+  onions:30,potatoes:21,sweet_potato:14,beetroot:14,tomatoes:6,capsicum:7,brinjal:5,
+  cauliflower:5,bottle_gourd:7,bitter_gourd:5,karela:5,raw_banana:5,radish:7,drumstick:5,
+  okra:4,bhindi:4,corn:3,green_peas:4,zucchini:5,broccoli:4,mushrooms:4,cucumber:6,
+  lettuce:4,celery:7,asparagus:3,avocado:4,avocados:4,bell_pepper:7,jalapenos:7,eggplant:5,ridge_gourd:5,
+  spinach:4,palak:4,methi:4,kale:5,coriander_leaves:5,curry_leaves:7,mint:5,basil:3,
+  garlic:30,ginger:14,green_chillies:7,dry_red_chillies:365,
+  chicken:2,chicken_mince:2,lamb:3,beef:3,pork:3,fish:2,prawns:2,shrimp:2,salmon:2,tuna:2,bacon:5,sausages:3,
+  paneer:5,curd:7,dahi:7,milk:5,yogurt:7,butter:21,ghee:180,cream:7,
+  mozzarella:5,mozzarella_cheese:5,parmesan:30,parmesan_cheese:30,feta:14,feta_cheese:14,ricotta:10,eggs:21,
+  tofu:4,tempeh:7,lemons:14,limes:14,banana:5,mango:5,apple:21,berries:4,orange:14,coconut:7,
+  toor_dal:365,moong_dal:365,masoor_dal:365,chana_dal:365,urad_dal:365,
+  rajma:365,kabuli_chana:365,kala_chana:365,lentils:365,
+  basmati_rice:365,rice:365,idli_rice:365,poha:180,rava:180,oats:180,
+  wheat_flour:180,atta:180,maida:180,besan:180,rice_flour:180,ragi:90,quinoa:365,
+  pasta:365,spaghetti:365,penne:365,noodles:365,arborio_rice:365,lasagna_sheets:365,tortillas:7,breadcrumbs:180,
+  mustard_seeds:365,cumin_seeds:365,coriander_powder:365,turmeric_powder:365,
+  garam_masala:365,red_chilli_powder:365,chaat_masala:365,kasuri_methi:365,
+  hing:365,amchur:365,oregano:365,paprika:365,cumin:365,bay_leaves:365,sambar_powder:365,black_pepper:365,
+  soy_sauce:365,sesame_oil:365,olive_oil:365,oil:180,tamarind:180,
+  jaggery:365,honey:730,sugar:999,salt:999,tahini:180,tomato_paste:365,coconut_milk:365,canned_tomatoes:365,olives:180,
+  cashews:180,peanuts:180,almonds:180,sesame_seeds:365,desiccated_coconut:180,
+};
+
+const CATEGORIES = {
+  "🥦 Vegetables":["Onions","Tomatoes","Potatoes","Sweet Potato","Cauliflower (Gobi)","Brinjal (Baingan)","Bitter Gourd (Karela)","Bottle Gourd (Lauki)","Ridge Gourd (Turai)","Raw Banana","Capsicum","Bell Peppers (Red/Yellow)","Okra (Bhindi)","Radish (Mooli)","Drumstick (Moringa)","Green Peas (Fresh)","Corn (Bhutta)","Beetroot","Zucchini","Mushrooms","Cucumber","Eggplant (Italian)","Jalapenos","Asparagus","Broccoli","Lettuce","Celery"],
+  "🌿 Leafy & Herbs":["Spinach (Palak)","Methi (Fenugreek Leaves)","Coriander Leaves","Curry Leaves","Mint (Pudina)","Kale","Basil (Fresh)","Rosemary","Thyme"],
+  "🌶 Aromatics":["Garlic","Ginger","Green Chillies","Dry Red Chillies","Lemongrass"],
+  "🥩 Meat":["Chicken","Chicken Mince","Lamb","Beef","Pork","Bacon","Sausages"],
+  "🐟 Fish & Seafood":["Fish (White)","Salmon","Prawns","Shrimp","Tuna (Canned)"],
+  "🧀 Dairy & Eggs":["Paneer","Curd (Dahi)","Yogurt","Milk","Butter","Ghee","Cream (Malai)","Mozzarella Cheese","Parmesan Cheese","Feta Cheese","Ricotta Cheese","Eggs"],
+  "🌱 Plant Proteins":["Tofu","Tempeh","Chickpeas (Canned)","Black Beans (Canned)","Kidney Beans (Canned)"],
+  "🫘 Indian Dals":["Toor Dal","Moong Dal (Yellow)","Masoor Dal (Red)","Chana Dal","Urad Dal (Black)","Urad Dal (White)","Kabuli Chana (Chickpeas)","Rajma (Kidney Beans)","Kala Chana (Black Chickpeas)"],
+  "🌾 Grains & Pasta":["Basmati Rice","Idli Rice (Parboiled)","Poha (Flattened Rice)","Rava / Sooji (Semolina)","Wheat Flour (Atta)","Maida (All Purpose Flour)","Besan (Chickpea Flour)","Rice Flour","Ragi (Finger Millet) Flour","Oats","Pasta (Spaghetti)","Pasta (Penne)","Lasagna Sheets","Arborio Rice","Tortillas (Flour)","Tortillas (Corn)","Quinoa","Breadcrumbs"],
+  "🧂 Spices":["Mustard Seeds","Cumin Seeds (Jeera)","Fenugreek Seeds (Methi Dana)","Cloves (Laung)","Cardamom (Elaichi)","Cinnamon (Dalchini)","Bay Leaves (Tej Patta)","Turmeric Powder (Haldi)","Red Chilli Powder","Coriander Powder (Dhania)","Garam Masala","Chaat Masala","Kasuri Methi","Hing (Asafoetida)","Amchur (Dry Mango Powder)","Sambar Powder","Cumin Powder","Oregano (Dried)","Basil (Dried)","Paprika","Smoked Paprika","Italian Seasoning","Taco Seasoning","Black Pepper (Ground)"],
+  "🍯 Condiments":["Olive Oil (Extra Virgin)","Oil (Vegetable/Sunflower)","Sesame Oil","Soy Sauce","Apple Cider Vinegar","Balsamic Vinegar","Tahini","Tomato Paste","Honey","Tamarind (Imli)","Jaggery (Gud)","Coconut Milk (Canned)","Canned Tomatoes (Whole)","Olives"],
+  "🌰 Nuts & Seeds":["Cashews (Kaju)","Peanuts","Almonds","Sesame Seeds","Desiccated Coconut","Coconut (Fresh)","Pine Nuts","Walnuts"],
+  "🍋 Fruits":["Lemons","Limes","Avocados","Banana","Mango","Apple","Orange","Berries"],
+  "🥫 Pantry Staples":["Sugar","Salt","Baking Powder","Baking Soda"],
+};
+
+const UNITS = ["units","kg","g","lb","oz","L","ml","bunch","can","cans","packet","box","bag","tbsp","tsp","dozen","slice","bulbs"];
+const CUISINES = ["Any (surprise me)","Indian — North","Indian — South","Indian — Gujarati / Maharashtrian","Italian","Mexican","Asian — Chinese","Asian — Japanese","Asian — Thai","Mediterranean","Lebanese / Middle Eastern","Continental"];
+const MEAL_COLORS = [{bg:"#fffbf0",border:"#f59e0b",accent:"#b45309"},{bg:"#f0fdf4",border:"#22c55e",accent:"#15803d"},{bg:"#fdf4ff",border:"#c084fc",accent:"#7e22ce"}];
+const MEAL_ICONS = {Breakfast:"🍳",Lunch:"🥘",Dinner:"🍲"};
+
+function getShelfLife(n) {
+  const k = n.toLowerCase().replace(/[\s()\/\-]/g,"_").replace(/_+/g,"_");
+  return SHELF_LIFE[k] || 7;
+}
+function getDays(item) {
+  const exp = new Date(item.boughtDate);
+  exp.setDate(exp.getDate() + item.shelfLife);
+  const today = new Date(); today.setHours(0,0,0,0);
+  return Math.ceil((exp - today) / 86400000);
+}
+function urgency(days) {
+  if (days<=1) return {bg:"#fee2e2",text:"#dc2626",badge:"#dc2626",label:"Use today!"};
+  if (days<=3) return {bg:"#fed7aa",text:"#c2410c",badge:"#ea580c",label:`${days}d left`};
+  if (days<=7) return {bg:"#fef9c3",text:"#92400e",badge:"#ca8a04",label:`${days}d left`};
+  return {bg:"#f0fdf4",text:"#166534",badge:"#16a34a",label:`${days}d`};
+}
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function callClaude(pantry, familySize, prefs, cuisine, apiKey) {
+  const urgent = [...pantry].sort((a,b)=>getDays(a)-getDays(b)).slice(0,12).map(i=>`${i.name} (${getDays(i)}d left)`);
+  const all = pantry.map(i=>i.name).join(", ");
+  const cuisineNote = cuisine==="Any (surprise me)"
+    ? "Mix cuisines — e.g. Indian breakfast, Italian lunch, Mexican dinner."
+    : `All meals in this style: ${cuisine}`;
+  const prompt = `You are a family chef. Generate 3 meals (Breakfast, Lunch, Dinner) for a family of ${familySize}.
+PANTRY — use expiring items first: ${urgent.join(", ")}
+All available: ${all}
+Cuisine: ${cuisineNote}
+Preferences: ${prefs||"family-friendly, balanced, practical"}
+Rules: Only use listed pantry items. Name the specific cuisine per meal. 3-4 sentence instructions.
+Respond ONLY with a JSON array, no markdown:
+[{"type":"Breakfast","title":"...","cuisine":"...","ingredients":["..."],"instructions":"...","prepTime":"..."},{"type":"Lunch",...},{"type":"Dinner",...}]`;
+
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "x-api-key": apiKey,
+      "anthropic-version":"2023-06-01",
+      "anthropic-dangerous-direct-browser-access":"true",
+    },
+    body: JSON.stringify({model:"claude-haiku-4-5-20251001",max_tokens:1000,messages:[{role:"user",content:prompt}]})
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  const text = data.content.map(c=>c.text||"").join("").replace(/```json|```/g,"").trim();
+  return JSON.parse(text);
+}
+
+const LS = {display:"block",fontSize:11,fontWeight:700,color:"#9a7050",textTransform:"uppercase",letterSpacing:0.8,marginBottom:5};
+const IS = {width:"100%",padding:"9px 12px",border:"1.5px solid #e8c97a",borderRadius:10,fontSize:13,color:"#2d1200",background:"white",fontFamily:"'Noto Sans',sans-serif"};
+const PB = {background:"linear-gradient(135deg,#c2410c,#d97706)",color:"white",border:"none",borderRadius:50,padding:"10px 22px",fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:"'Noto Sans',sans-serif"};
+const SB = {background:"white",color:"#7c4a1e",border:"1.5px solid #e8c97a",borderRadius:50,padding:"8px 16px",fontSize:12,fontWeight:600,cursor:"pointer",fontFamily:"'Noto Sans',sans-serif"};
+const CARD = {background:"linear-gradient(135deg,#fffbf0,#fff8e8)",border:"1.5px solid #e8c97a",borderRadius:18,padding:"20px 22px",marginBottom:20};
+const CT = {margin:"0 0 14px",fontFamily:"'Noto Serif',Georgia,serif",fontSize:16,color:"#7c3d0a",fontWeight:700};
+
+function MealCard({meal, index}) {
+  const col = MEAL_COLORS[index%3];
+  return (
+    <div style={{background:col.bg,border:`1.5px solid ${col.border}`,borderRadius:16,padding:"16px 18px",marginBottom:12}}>
+      <div style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:10}}>
+        <span style={{fontSize:30,lineHeight:1}}>{MEAL_ICONS[meal.type]||"🍽"}</span>
+        <div>
+          <div style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:1,color:col.accent}}>{meal.type}</div>
+          <div style={{fontFamily:"'Noto Serif',Georgia,serif",fontSize:17,fontWeight:700,color:"#1a0800"}}>{meal.title}</div>
+          <div style={{fontSize:11,color:"#9a7050",marginTop:2}}>{meal.cuisine}{meal.prepTime?` · ${meal.prepTime}`:""}</div>
+        </div>
+      </div>
+      {meal.ingredients?.length>0&&(
+        <div style={{display:"flex",flexWrap:"wrap",gap:4,marginBottom:10}}>
+          {meal.ingredients.map((ing,i)=><span key={i} style={{fontSize:11,background:"rgba(255,255,255,0.85)",border:`1px solid ${col.border}`,padding:"2px 9px",borderRadius:20,color:"#3d1f0a"}}>{ing}</span>)}
+        </div>
+      )}
+      <div style={{background:"rgba(255,255,255,0.55)",borderRadius:10,padding:"10px 12px",fontSize:13,color:"#3d1800",lineHeight:1.75}}>{meal.instructions}</div>
+    </div>
+  );
+}
+
+function AddItemForm({onAdd}) {
+  const today = new Date().toISOString().slice(0,10);
+  const [name,setName]=useState(""); const [qty,setQty]=useState("1");
+  const [unit,setUnit]=useState("units"); const [cat,setCat]=useState("🥦 Vegetables");
+  const [date,setDate]=useState(today); const [shelf,setShelf]=useState("");
+  const [showSug,setShowSug]=useState(false);
+  const catItems = CATEGORIES[cat]||[];
+  const sugs = name.length>1 ? catItems.filter(i=>i.toLowerCase().includes(name.toLowerCase())).slice(0,6) : [];
+  const computed = shelf||(name?getShelfLife(name):7);
+  const handle = ()=>{
+    if(!name.trim()) return;
+    onAdd({id:Date.now(),name:name.trim(),quantity:qty,unit,category:cat,boughtDate:date,shelfLife:Number(computed)});
+    setName(""); setQty("1"); setShelf(""); setShowSug(false);
+  };
+  return (
+    <div style={{...CARD,position:"relative"}}>
+      <p style={CT}>🛒 Add to pantry</p>
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:10}}>
+        <div style={{position:"relative"}}>
+          <label style={LS}>Item name</label>
+          <input style={IS} value={name}
+            onChange={e=>{setName(e.target.value);setShowSug(true);}}
+            onBlur={()=>setTimeout(()=>setShowSug(false),150)}
+            placeholder="e.g. Chicken, Spinach, Pasta"
+            onKeyDown={e=>e.key==="Enter"&&handle()} />
+          {showSug&&sugs.length>0&&(
+            <div style={{position:"absolute",top:"100%",left:0,right:0,background:"white",border:"1.5px solid #e8c97a",borderRadius:10,zIndex:100,boxShadow:"0 4px 16px rgba(0,0,0,0.1)"}}>
+              {sugs.map(s=><div key={s} onMouseDown={()=>{setName(s);setShelf("");setShowSug(false);}} style={{padding:"8px 12px",cursor:"pointer",fontSize:13,color:"#3d1f0a",borderBottom:"1px solid #f0e0c0"}}>{s}</div>)}
+            </div>
+          )}
+        </div>
+        <div><label style={LS}>Qty</label><input style={IS} type="number" value={qty} onChange={e=>setQty(e.target.value)} min="0.1" step="0.5"/></div>
+        <div><label style={LS}>Unit</label>
+          <select style={IS} value={unit} onChange={e=>setUnit(e.target.value)}>
+            {UNITS.map(u=><option key={u}>{u}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:14}}>
+        <div><label style={LS}>Category</label>
+          <select style={IS} value={cat} onChange={e=>setCat(e.target.value)}>
+            {Object.keys(CATEGORIES).map(c=><option key={c}>{c}</option>)}
+          </select>
+        </div>
+        <div><label style={LS}>Date bought</label><input style={IS} type="date" value={date} onChange={e=>setDate(e.target.value)}/></div>
+        <div><label style={LS}>Shelf life (days)</label><input style={IS} type="number" value={shelf||computed} onChange={e=>setShelf(e.target.value)}/></div>
+      </div>
+      <button onClick={handle} style={PB}>+ Add to Pantry</button>
+    </div>
+  );
+}
+
+function PantryItem({item,onRemove}) {
+  const days=getDays(item); const c=urgency(days);
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 14px",background:c.bg,borderRadius:12,marginBottom:6,borderLeft:`4px solid ${c.badge}`}}>
+      <div style={{flex:1,minWidth:0}}>
+        <span style={{fontWeight:700,color:"#2d1200",fontFamily:"'Noto Serif',Georgia,serif"}}>{item.name}</span>
+        <span style={{marginLeft:8,fontSize:13,color:"#7c4a1e"}}>{item.quantity} {item.unit}</span>
+        <span style={{marginLeft:6,fontSize:11,color:"#b0936a"}}>· {item.category.replace(/^\S+\s/,"")}</span>
+      </div>
+      <span style={{fontSize:11,fontWeight:700,color:c.text,background:"rgba(255,255,255,0.7)",padding:"3px 9px",borderRadius:20,whiteSpace:"nowrap",flexShrink:0}}>{c.label}</span>
+      <button onClick={()=>onRemove(item.id)} style={{background:"none",border:"none",cursor:"pointer",color:"#c0a08a",fontSize:20,lineHeight:1,flexShrink:0,padding:"0 4px"}}>×</button>
+    </div>
+  );
+}
+
+function App() {
+  const [tab,setTab]=useState("pantry");
+  const [pantry,setPantry]=useState(()=>{try{return JSON.parse(localStorage.getItem("mw_pantry")||"[]");}catch{return[];}});
+  const [recipes,setRecipes]=useState(()=>{try{return JSON.parse(localStorage.getItem("mw_recipes")||"[]");}catch{return[];}});
+  const [familySize,setFamilySize]=useState(()=>localStorage.getItem("mw_size")||"4");
+  const [familyName,setFamilyName]=useState(()=>localStorage.getItem("mw_name")||"Our Family");
+  const [prefs,setPrefs]=useState(()=>localStorage.getItem("mw_prefs")||"");
+  const [cuisine,setCuisine]=useState(()=>localStorage.getItem("mw_cuisine")||"Any (surprise me)");
+  const [apiKey,setApiKey]=useState(()=>localStorage.getItem("mw_apikey")||"");
+  const [filterCat,setFilterCat]=useState("All");
+  const [sortBy,setSortBy]=useState("expiry");
+  const [search,setSearch]=useState("");
+  const [generating,setGenerating]=useState(false);
+  const [genError,setGenError]=useState("");
+
+  useEffect(()=>{localStorage.setItem("mw_pantry",JSON.stringify(pantry));},[pantry]);
+  useEffect(()=>{localStorage.setItem("mw_recipes",JSON.stringify(recipes));},[recipes]);
+  useEffect(()=>{localStorage.setItem("mw_size",familySize);},[familySize]);
+  useEffect(()=>{localStorage.setItem("mw_name",familyName);},[familyName]);
+  useEffect(()=>{localStorage.setItem("mw_prefs",prefs);},[prefs]);
+  useEffect(()=>{localStorage.setItem("mw_cuisine",cuisine);},[cuisine]);
+  useEffect(()=>{localStorage.setItem("mw_apikey",apiKey);},[apiKey]);
+
+  const addItem=useCallback(item=>setPantry(p=>[item,...p]),[]);
+  const removeItem=useCallback(id=>setPantry(p=>p.filter(i=>i.id!==id)),[]);
+  const expiring=useMemo(()=>pantry.filter(i=>getDays(i)<=3),[pantry]);
+  const cats=["All",...Object.keys(CATEGORIES)];
+  const filtered=useMemo(()=>pantry
+    .filter(i=>filterCat==="All"||i.category===filterCat)
+    .filter(i=>!search||i.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a,b)=>sortBy==="expiry"?getDays(a)-getDays(b):a.name.localeCompare(b.name))
+  ,[pantry,filterCat,search,sortBy]);
+
+  const handleGenerate = async () => {
+    if (!apiKey) { setGenError("Add your API key in ⚙ Setup first!"); setTab("setup"); return; }
+    if (pantry.length===0) { setGenError("Add some pantry items first!"); return; }
+    setGenerating(true); setGenError("");
+    try {
+      const meals = await callClaude(pantry, familySize, prefs, cuisine, apiKey);
+      const entry = {
+        date: new Date().toLocaleDateString("en-AU",{weekday:"long",year:"numeric",month:"long",day:"numeric"}),
+        generatedAt: new Date().toISOString(),
+        cuisinePreference: cuisine,
+        meals,
+      };
+      setRecipes(r=>[entry,...r]);
+      setTab("recipes");
+    } catch(e) {
+      setGenError("Error: "+e.message);
+    }
+    setGenerating(false);
+  };
+
+  const tabs=[
+    {id:"pantry",label:"🧺 Pantry",count:pantry.length},
+    {id:"recipes",label:"🍽 Recipes",count:recipes.length||undefined},
+    {id:"setup",label:`⚙ Setup${!apiKey?" 🔑":""}`},
+  ];
+
+  return (
+    <div style={{minHeight:"100vh",background:"#fdf8f0"}}>
+      <div style={{background:"linear-gradient(135deg,#1a0800 0%,#7c2d12 50%,#d97706 100%)",padding:"20px 16px 0",color:"white"}}>
+        <div style={{maxWidth:720,margin:"0 auto"}}>
+          <div style={{marginBottom:14}}>
+            <div style={{fontSize:10,opacity:0.6,letterSpacing:2.5,textTransform:"uppercase",marginBottom:3}}>Mealwise · Family Kitchen</div>
+            <h1 style={{margin:"0 0 2px",fontFamily:"'Noto Serif',serif",fontSize:24,fontWeight:700}}>{familyName} 🏠</h1>
+            <div style={{opacity:0.75,fontSize:12}}>Family of {familySize} · {pantry.length} pantry items{expiring.length>0?` · ⚠️ ${expiring.length} expiring`:""}</div>
+          </div>
+          <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:14,flexWrap:"wrap"}}>
+            <select value={cuisine} onChange={e=>setCuisine(e.target.value)}
+              style={{flex:1,minWidth:180,padding:"9px 14px",borderRadius:50,border:"1.5px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.12)",color:"white",fontSize:13,fontFamily:"'Noto Sans',sans-serif",cursor:"pointer"}}>
+              {CUISINES.map(c=><option key={c} style={{color:"#1a0800",background:"white"}}>{c}</option>)}
+            </select>
+            <button onClick={handleGenerate} disabled={generating}
+              style={{background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.5)",color:"white",borderRadius:50,padding:"10px 22px",fontSize:13,fontWeight:600,cursor:generating?"not-allowed":"pointer",fontFamily:"'Noto Sans',sans-serif",display:"inline-flex",alignItems:"center",gap:8,whiteSpace:"nowrap"}}>
+              {generating
+                ?<><span style={{display:"inline-block",width:13,height:13,border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>Generating…</>
+                :"✨ Generate Recipes"}
+            </button>
+          </div>
+          {genError&&<div style={{marginBottom:10,fontSize:12,color:"#fde68a",background:"rgba(0,0,0,0.25)",padding:"6px 12px",borderRadius:8,display:"inline-block"}}>{genError}</div>}
+        </div>
+        <div style={{maxWidth:720,margin:"0 auto",display:"flex",borderTop:"1px solid rgba(255,255,255,0.12)"}}>
+          {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{flex:1,background:"none",border:"none",borderBottom:tab===t.id?"3px solid white":"3px solid transparent",padding:"10px 4px",cursor:"pointer",fontSize:12,fontWeight:600,color:tab===t.id?"white":"rgba(255,255,255,0.5)",fontFamily:"'Noto Sans',sans-serif"}}>
+            {t.label}{t.count!==undefined?` (${t.count})`:""}</button>)}
+        </div>
+      </div>
+
+      <div style={{maxWidth:720,margin:"0 auto",padding:"20px 14px"}} className="fade-up" key={tab}>
+
+        {tab==="pantry"&&<>
+          <AddItemForm onAdd={addItem}/>
+          {expiring.length>0&&(
+            <div style={{background:"#fff7ed",border:"1.5px solid #fed7aa",borderRadius:14,padding:"12px 16px",marginBottom:16,display:"flex",gap:10,alignItems:"center"}}>
+              <span style={{fontSize:22}}>⚠️</span>
+              <div>
+                <div style={{fontWeight:700,color:"#c2410c",fontSize:13}}>Use these soon!</div>
+                <div style={{fontSize:12,color:"#9a3412",marginTop:2}}>{expiring.map(i=>i.name).join(" · ")}</div>
+              </div>
+            </div>
+          )}
+          <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"flex-end"}}>
+            <div style={{flex:1,minWidth:130}}><label style={LS}>Search</label>
+              <input style={IS} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search pantry..."/>
+            </div>
+            <div style={{flex:1,minWidth:150}}><label style={LS}>Category</label>
+              <select style={IS} value={filterCat} onChange={e=>setFilterCat(e.target.value)}>
+                {cats.map(c=><option key={c}>{c}</option>)}
+              </select>
+            </div>
+            <div><label style={LS}>Sort</label>
+              <select style={IS} value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+                <option value="expiry">Expiry first</option>
+                <option value="name">A–Z</option>
+              </select>
+            </div>
+            <div style={{alignSelf:"flex-end",display:"flex",gap:6}}>
+              <button onClick={()=>downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json")} style={SB}>⬇ JSON</button>
+              <button onClick={()=>downloadFile(["Name,Category,Qty,Unit,Bought,Shelf Life",...pantry.map(i=>`"${i.name}","${i.category}","${i.quantity}","${i.unit}","${i.boughtDate}","${i.shelfLife}"`)].join("\n"),"pantry.csv","text/csv")} style={SB}>⬇ CSV</button>
+            </div>
+          </div>
+          {filtered.length===0
+            ?<div style={{textAlign:"center",padding:48,color:"#c0a080"}}>
+              <div style={{fontSize:52}}>🧺</div>
+              <div style={{fontFamily:"'Noto Serif',serif",fontSize:18,color:"#7c4a1e",marginTop:12}}>Pantry is empty</div>
+              <div style={{fontSize:13,marginTop:4}}>Add groceries above or import in Setup</div>
+            </div>
+            :filtered.map(item=><PantryItem key={item.id} item={item} onRemove={removeItem}/>)
+          }
+        </>}
+
+        {tab==="recipes"&&<>
+          {recipes.length===0
+            ?<div style={{textAlign:"center",padding:56,color:"#c0a080"}}>
+              <div style={{fontSize:60}}>🍽️</div>
+              <div style={{fontFamily:"'Noto Serif',serif",fontSize:20,color:"#7c4a1e",marginTop:14}}>No recipes yet</div>
+              <div style={{fontSize:13,marginTop:6}}>Choose a cuisine above and hit ✨ Generate Recipes</div>
+            </div>
+            :<>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:8}}>
+                <div style={{fontFamily:"'Noto Serif',serif",fontSize:14,color:"#9a7050"}}>{recipes.length} day{recipes.length!==1?"s":""} of recipes</div>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={()=>downloadFile(JSON.stringify(recipes,null,2),"recipes.json","application/json")} style={SB}>⬇ Export</button>
+                  <button onClick={()=>{if(window.confirm("Clear all saved recipes?"))setRecipes([]);}} style={{...SB,borderColor:"#fca5a5",color:"#dc2626"}}>🗑 Clear</button>
+                </div>
+              </div>
+              {recipes.map((entry,ei)=>(
+                <div key={ei} style={{marginBottom:28}}>
+                  <div style={{fontFamily:"'Noto Serif',serif",fontSize:14,fontWeight:700,color:"#7c2d12",marginBottom:10,paddingBottom:6,borderBottom:"1.5px solid #e8c97a",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span>📅 {entry.date}</span>
+                    {entry.cuisinePreference&&<span style={{fontSize:11,background:"#fff7ed",border:"1px solid #fed7aa",padding:"2px 8px",borderRadius:20,color:"#c2410c",fontWeight:600}}>{entry.cuisinePreference.split("—")[0].trim()}</span>}
+                  </div>
+                  {entry.meals.map((m,mi)=><MealCard key={mi} meal={m} index={mi}/>)}
+                </div>
+              ))}
+            </>
+          }
+        </>}
+
+        {tab==="setup"&&<>
+          {!apiKey&&(
+            <div style={{background:"#fff7ed",border:"1.5px solid #fed7aa",borderRadius:14,padding:"14px 18px",marginBottom:20,display:"flex",gap:12,alignItems:"center"}}>
+              <span style={{fontSize:28}}>🔑</span>
+              <div>
+                <div style={{fontWeight:700,color:"#c2410c",fontSize:14}}>API key needed to generate recipes</div>
+                <div style={{fontSize:12,color:"#9a3412",marginTop:3}}>Enter your Anthropic key below — saved permanently in your browser, never sent anywhere else.</div>
+              </div>
+            </div>
+          )}
+          <div style={CARD}>
+            <p style={CT}>🔑 Anthropic API Key</p>
+            <label style={LS}>Paste your key (sk-ant-...)</label>
+            <input style={{...IS,fontFamily:"monospace",letterSpacing:1}} type="password"
+              value={apiKey} onChange={e=>setApiKey(e.target.value)}
+              placeholder="sk-ant-api03-..."/>
+            {apiKey
+              ?<div style={{marginTop:8,fontSize:12,color:"#15803d",fontWeight:600}}>✅ Key saved — you won't need to enter this again</div>
+              :<div style={{marginTop:8,fontSize:12,color:"#9a7050"}}>Get your free key at <a href="https://console.anthropic.com" target="_blank" style={{color:"#c2773b"}}>console.anthropic.com</a></div>
+            }
+          </div>
+
+          <div style={CARD}>
+            <p style={CT}>👨‍👩‍👧‍👦 Family settings</p>
+            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
+              <div><label style={LS}>Family name</label><input style={IS} value={familyName} onChange={e=>setFamilyName(e.target.value)}/></div>
+              <div><label style={LS}>Family size</label><input style={IS} type="number" min={1} max={20} value={familySize} onChange={e=>setFamilySize(e.target.value)}/></div>
+            </div>
+            <div>
+              <label style={LS}>Dietary preferences</label>
+              <textarea style={{...IS,height:90,resize:"vertical"}} value={prefs} onChange={e=>setPrefs(e.target.value)}
+                placeholder="e.g. No onion garlic Tuesdays, kids love paneer, Friday pasta nights..."/>
+            </div>
+          </div>
+
+          <div style={CARD}>
+            <p style={CT}>💾 Pantry data</p>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
+              <button onClick={()=>downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json")} style={PB}>⬇ Export pantry.json</button>
+              <button onClick={()=>{if(window.confirm("Clear all pantry?"))setPantry([]);}} style={{...SB,borderColor:"#fca5a5",color:"#dc2626"}}>🗑 Clear</button>
+            </div>
+            <label style={LS}>Import pantry.json</label>
+            <input type="file" accept=".json" onChange={e=>{
+              const file=e.target.files[0]; if(!file) return;
+              const r=new FileReader();
+              r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(Array.isArray(d)){setPantry(d);alert(`✅ Imported ${d.length} items!`);}}catch{alert("Invalid JSON");}};
+              r.readAsText(file);
+            }} style={{fontSize:13,color:"#7c4a1e"}}/>
+          </div>
+        </>}
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
