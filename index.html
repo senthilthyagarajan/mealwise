@@ -16,6 +16,22 @@ input:focus,select:focus,textarea:focus { border-color: #d97706 !important; box-
 @keyframes fadeUp { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
 .fade-up { animation: fadeUp 0.25s ease both; }
 ::-webkit-scrollbar { width:5px; } ::-webkit-scrollbar-thumb { background:#e8c97a; border-radius:3px; }
+.grid3 { display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+.grid3b { display:grid; grid-template-columns:2fr 1fr 1fr; gap:10px; margin-bottom:14px; }
+.grid2 { display:grid; grid-template-columns:2fr 1fr; gap:12px; margin-bottom:12px; }
+.filterrow { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:flex-end; }
+.filterrow > div { flex:1; min-width:120px; }
+@media(max-width:520px){
+  .grid3 { grid-template-columns:1fr 1fr; }
+  .grid3 > div:first-child { grid-column:1/-1; }
+  .grid3b { grid-template-columns:1fr 1fr; }
+  .grid3b > div:first-child { grid-column:1/-1; }
+  .grid2 { grid-template-columns:1fr 1fr; }
+  .filterrow { flex-direction:column; }
+  .filterrow > div { min-width:unset; width:100%; }
+  .dlbuttons { width:100%; justify-content:stretch; }
+  .dlbuttons button { flex:1; }
+}
 </style>
 </head>
 <body>
@@ -169,7 +185,7 @@ function AddItemForm({onAdd}) {
   return (
     <div style={{...CARD,position:"relative"}}>
       <p style={CT}>🛒 Add to pantry</p>
-      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:10}}>
+      <div className="grid3">
         <div style={{position:"relative"}}>
           <label style={LS}>Item name</label>
           <input style={IS} value={name}
@@ -190,7 +206,7 @@ function AddItemForm({onAdd}) {
           </select>
         </div>
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr",gap:10,marginBottom:14}}>
+      <div className="grid3b">
         <div><label style={LS}>Category</label>
           <select style={IS} value={cat} onChange={e=>setCat(e.target.value)}>
             {Object.keys(CATEGORIES).map(c=><option key={c}>{c}</option>)}
@@ -289,14 +305,14 @@ function App() {
           </div>
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:14,flexWrap:"wrap"}}>
             <select value={cuisine} onChange={e=>setCuisine(e.target.value)}
-              style={{flex:1,minWidth:180,padding:"9px 14px",borderRadius:50,border:"1.5px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.12)",color:"white",fontSize:13,fontFamily:"'Noto Sans',sans-serif",cursor:"pointer"}}>
+              style={{flex:1,minWidth:160,padding:"9px 14px",borderRadius:50,border:"1.5px solid rgba(255,255,255,0.3)",background:"rgba(255,255,255,0.12)",color:"white",fontSize:13,fontFamily:"'Noto Sans',sans-serif",cursor:"pointer"}}>
               {CUISINES.map(c=><option key={c} style={{color:"#1a0800",background:"white"}}>{c}</option>)}
             </select>
             <button onClick={handleGenerate} disabled={generating}
-              style={{background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.5)",color:"white",borderRadius:50,padding:"10px 22px",fontSize:13,fontWeight:600,cursor:generating?"not-allowed":"pointer",fontFamily:"'Noto Sans',sans-serif",display:"inline-flex",alignItems:"center",gap:8,whiteSpace:"nowrap"}}>
+              style={{flexShrink:0,background:"rgba(255,255,255,0.2)",border:"1.5px solid rgba(255,255,255,0.5)",color:"white",borderRadius:50,padding:"10px 20px",fontSize:13,fontWeight:600,cursor:generating?"not-allowed":"pointer",fontFamily:"'Noto Sans',sans-serif",display:"inline-flex",alignItems:"center",gap:8,whiteSpace:"nowrap"}}>
               {generating
                 ?<><span style={{display:"inline-block",width:13,height:13,border:"2px solid rgba(255,255,255,0.3)",borderTopColor:"white",borderRadius:"50%",animation:"spin 0.8s linear infinite"}}/>Generating…</>
-                :"✨ Generate Recipes"}
+                :"✨ Generate"}
             </button>
           </div>
           {genError&&<div style={{marginBottom:10,fontSize:12,color:"#fde68a",background:"rgba(0,0,0,0.25)",padding:"6px 12px",borderRadius:8,display:"inline-block"}}>{genError}</div>}
@@ -320,7 +336,7 @@ function App() {
               </div>
             </div>
           )}
-          <div style={{display:"flex",gap:8,marginBottom:12,flexWrap:"wrap",alignItems:"flex-end"}}>
+          <div className="filterrow">
             <div style={{flex:1,minWidth:130}}><label style={LS}>Search</label>
               <input style={IS} value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search pantry..."/>
             </div>
@@ -335,7 +351,7 @@ function App() {
                 <option value="name">A–Z</option>
               </select>
             </div>
-            <div style={{alignSelf:"flex-end",display:"flex",gap:6}}>
+            <div className="dlbuttons" style={{alignSelf:"flex-end",display:"flex",gap:6}}>
               <button onClick={()=>downloadFile(JSON.stringify(pantry,null,2),"pantry.json","application/json")} style={SB}>⬇ JSON</button>
               <button onClick={()=>downloadFile(["Name,Category,Qty,Unit,Bought,Shelf Life",...pantry.map(i=>`"${i.name}","${i.category}","${i.quantity}","${i.unit}","${i.boughtDate}","${i.shelfLife}"`)].join("\n"),"pantry.csv","text/csv")} style={SB}>⬇ CSV</button>
             </div>
@@ -402,7 +418,7 @@ function App() {
 
           <div style={CARD}>
             <p style={CT}>👨‍👩‍👧‍👦 Family settings</p>
-            <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:12,marginBottom:12}}>
+            <div className="grid2">
               <div><label style={LS}>Family name</label><input style={IS} value={familyName} onChange={e=>setFamilyName(e.target.value)}/></div>
               <div><label style={LS}>Family size</label><input style={IS} type="number" min={1} max={20} value={familySize} onChange={e=>setFamilySize(e.target.value)}/></div>
             </div>
